@@ -42,12 +42,12 @@ AProjectile::AProjectile()
 
 	if (!ProjectileMeshComponent) {
 		ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMeshComponent"));
-		static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("'/Game/Sphere.Sphere'"));
+		static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("'/Game/Static/Sphere.Sphere'"));
 		if (Mesh.Succeeded()) {
 			ProjectileMeshComponent->SetStaticMesh(Mesh.Object);
 		}
 
-		static ConstructorHelpers::FObjectFinder<UMaterial>Material(TEXT("'/Game/SphereMaterial.SphereMaterial'"));
+		static ConstructorHelpers::FObjectFinder<UMaterial>Material(TEXT("'/Game/Static/SphereMaterial.SphereMaterial'"));
 		if (Material.Succeeded()) {
 			ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(Material.Object, ProjectileMeshComponent);
 		}
@@ -58,7 +58,7 @@ AProjectile::AProjectile()
 
 	if (!ProjectileParticleSystemComponent) {
 		ProjectileParticleSystemComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ProjectileParticleSystemComponent"));
-		static ConstructorHelpers::FObjectFinder<UNiagaraSystem>ParticleSystem(TEXT("'/Game//NewNiagaraSystem.NewNiagaraSystem'"));
+		static ConstructorHelpers::FObjectFinder<UNiagaraSystem>ParticleSystem(TEXT("'/Game/Static/NewNiagaraSystem.NewNiagaraSystem'"));
 		if (ParticleSystem.Succeeded()) {
 			ProjectileParticleSystemComponent->SetAsset(ParticleSystem.Object);
 		}
@@ -68,7 +68,7 @@ AProjectile::AProjectile()
 
 	
 	if (!ProjectileCollisionParticleSystem) {
-		static ConstructorHelpers::FObjectFinder<UParticleSystem>ParticleSystem(TEXT("'/Game/DefaultContent/StarterContent/Particles/P_Explosion.P_Explosion'"));
+		static ConstructorHelpers::FObjectFinder<UParticleSystem>ParticleSystem(TEXT("'/Game/Static/DefaultContent/StarterContent/Particles/P_Explosion.P_Explosion'"));
 		if (ParticleSystem.Succeeded()) {
 			ProjectileCollisionParticleSystem = ParticleSystem.Object;
 		}
