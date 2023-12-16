@@ -8,6 +8,7 @@
 
 class UStatModifierApplicator;
 class UNiagaraSystem;
+class AProjectile;
 /**
  * 
  */

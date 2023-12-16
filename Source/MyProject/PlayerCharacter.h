@@ -73,13 +73,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace", meta = (AllowPrivateAccess = "true"))
 		float TraceDistance = 500.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Trace", meta = (AllowPrivateAccess = "true"))
 		AActor* LockOnTarget = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		bool PunchStart = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		bool CanPunch = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -117,8 +117,13 @@ protected:
 
 	void Look(const FInputActionValue& Value);
 
+	UFUNCTION(Server, Reliable)
 	void Punch(const FInputActionValue& Value);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayPunchMontage();
 
+	UFUNCTION(Server, Reliable)
 	void LockOn(const FInputActionValue& Value);
 
 	void Fire();
@@ -136,7 +141,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	UFUNCTION(BlueprintCallable, Category="PlayerCamera")
-	void SetCameraBoomAttachment(USceneComponent* AttachComponent);\
+	void SetCameraBoomAttachment(USceneComponent* AttachComponent);
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }

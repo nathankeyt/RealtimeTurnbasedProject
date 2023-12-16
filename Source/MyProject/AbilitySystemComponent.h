@@ -29,9 +29,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(Server, Reliable)
 	void ActivateAbility(int AbilityIndex, ABaseCharacter* Character);
-
+ 
 	UFUNCTION(BlueprintCallable)
 	TArray<UAbility*> GetAbilities() const { return Abilities; }
 };

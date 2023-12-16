@@ -7,6 +7,7 @@
 #include "Kismet/KismetArrayLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilityDisplayWidget.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -177,7 +178,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value) {
     }
 }
 
-void APlayerCharacter::Punch(const FInputActionValue& Value) {
+void APlayerCharacter::Punch_Implementation(const FInputActionValue& Value) {
     if (Controller != nullptr && CanPunch) {
         CanPunch = false;
         IsPunching = true;
@@ -214,7 +215,13 @@ void APlayerCharacter::Punch(const FInputActionValue& Value) {
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *LockOnTarget->GetName()));
         }
 
-        ACharacter::PlayAnimMontage(CombatMontages[FMath::RandRange(0, CombatMontages.Num() - 1)]);
+        PlayPunchMontage();
+        //GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
+    }  
+}
+
+void APlayerCharacter::PlayPunchMontage_Implementation() {
+        ACharacter::PlayAnimMontage(CombatMontages[FMath::RandRange(0, CombatMontages.Num() - 1)]); // implement random num gen on server
 
         FOnMontageEnded EndDelegate;
         
@@ -222,11 +229,9 @@ void APlayerCharacter::Punch(const FInputActionValue& Value) {
         
         GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
 
-        //GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
-    }  
 }
 
-void APlayerCharacter::LockOn(const FInputActionValue& Value) {
+void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
     if (LockOnTarget != nullptr) {
         LockOnTarget = nullptr;
     }
@@ -349,4 +354,13 @@ void APlayerCharacter::Fire() {
             }
         }
     }
+}
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(APlayerCharacter, LockOnTarget);
+    DOREPLIFETIME(APlayerCharacter, PunchStart);
+    DOREPLIFETIME(APlayerCharacter, CanPunch);
 }

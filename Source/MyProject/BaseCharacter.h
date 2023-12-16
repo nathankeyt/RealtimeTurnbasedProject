@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced,  meta = (AllowPrivateAccess = "true"))
 	UStat* Mana;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced,  meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, Instanced,  meta = (AllowPrivateAccess = "true"))
 	UStat* MovementSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,  meta = (AllowPrivateAccess = "true"))
@@ -39,7 +39,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FName PunchBoneName = FName(TEXT("hand_l"));
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool IsPunching = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,  meta = (AllowPrivateAccess = "true"))
@@ -71,6 +71,7 @@ public:
 
 	void OnPunchingMontageEnd(UAnimMontage* Montage_, bool interrupted_);
 
+	UFUNCTION(NetMulticast, Reliable)
 	void PlayHitReaction();
 
 };

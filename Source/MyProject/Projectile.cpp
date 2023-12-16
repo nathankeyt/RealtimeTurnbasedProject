@@ -15,6 +15,9 @@ AProjectile::AProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	if (!RootComponent) {
 		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSceneComponent"));
 	}
@@ -23,7 +26,16 @@ AProjectile::AProjectile()
 		CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 
 		CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
-		CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+
+		if (HasAuthority())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Server: Projectile spawned on server."));
+			CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+		}
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Client: Projectile spawned on client"));
+		}
+		
 		CollisionComponent->InitSphereRadius(15.0f);
 
 		RootComponent = CollisionComponent;

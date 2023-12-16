@@ -4,6 +4,7 @@
 #include "BaseCharacter.h"
 #include "Stat.h"
 #include "AbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -41,7 +42,7 @@ void ABaseCharacter::OnPunchingMontageEnd(UAnimMontage* Montage_, bool interrupt
 	CurrPunchHits.Empty();
 }
 
-void ABaseCharacter::PlayHitReaction()
+void ABaseCharacter::PlayHitReaction_Implementation()
 {
 	if (!HitReactionMontages.IsEmpty())
 	{
@@ -72,4 +73,17 @@ void ABaseCharacter::AddMovementSpeedModifier(UStatModifier* StatModifier)
 		SetMovementSpeed(StatModifier);
 	}
 }
+/*
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	
+	DOREPLIFETIME(ABaseCharacter, Health);
+	DOREPLIFETIME(ABaseCharacter, Mana);
+	DOREPLIFETIME(ABaseCharacter, MovementSpeed);
+	DOREPLIFETIME(ABaseCharacter, AbilitySystem);
+	
+}
+*/
 

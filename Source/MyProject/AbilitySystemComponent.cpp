@@ -10,6 +10,8 @@ UAbilitySystemComponent::UAbilitySystemComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	SetIsReplicatedByDefault(true);
 
 	Abilities.Init(nullptr, 10);
 }
@@ -33,7 +35,7 @@ void UAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	// ...
 }
 
-void UAbilitySystemComponent::ActivateAbility(int AbilityIndex, ABaseCharacter* Character)
+void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, ABaseCharacter* Character)
 {
 	if (Abilities[AbilityIndex] != nullptr)
 	{
