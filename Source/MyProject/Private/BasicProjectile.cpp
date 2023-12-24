@@ -2,10 +2,7 @@
 
 
 #include "BasicProjectile.h"
-
-#include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetArrayLibrary.h"
+#include "ProjectileSpawner.h"
 
 UBasicProjectile::UBasicProjectile()
 {

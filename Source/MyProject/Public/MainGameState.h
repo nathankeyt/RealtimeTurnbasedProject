@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "Public/TurnEnum.h"
+#include "TurnEnum.h"
 #include "MainGameState.generated.h"
 
 /**

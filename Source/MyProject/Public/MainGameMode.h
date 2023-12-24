@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "Public/TurnEnum.h"
+#include "TurnEnum.h"
 #include "MainGameMode.generated.h"
 
 /**

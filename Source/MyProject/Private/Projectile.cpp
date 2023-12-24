@@ -2,11 +2,15 @@
 
 
 #include "Projectile.h"
-#include "AbilitySystemComponent.h"
-#include "StatAdditionModifier.h"
+#include "EnemyCharacter.h"
 #include "StatModifierApplicator.h"
+#include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 
 // Sets default values
@@ -17,6 +21,7 @@ AProjectile::AProjectile()
 
 	bReplicates = true;
 	SetReplicateMovement(true);
+	
 
 	if (!RootComponent) {
 		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSceneComponent"));

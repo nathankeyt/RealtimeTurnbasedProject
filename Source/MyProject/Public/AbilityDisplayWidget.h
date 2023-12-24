@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/Image.h"
-#include "MyProject/AbilitySystemComponent.h"
 #include "AbilityDisplayWidget.generated.h"
 
+class UAbilitySystemComponent;
+class UImage;
 /**
  * 
  */

@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlayerCharacter.h"
 #include "Engine/DataAsset.h"
 #include "Ability.generated.h"
+
+class UStatModifierApplicator;
 
 /**
  * 

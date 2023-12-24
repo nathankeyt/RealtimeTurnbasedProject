@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "StatEnum.h"
-#include "MyProject/BaseCharacter.h"
+#include "BaseCharacter.h"
 #include "UObject/NoExportTypes.h"
 #include "Templates/Tuple.h"
 #include "StatModifierApplicator.generated.h"

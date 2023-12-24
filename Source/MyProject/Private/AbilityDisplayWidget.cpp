@@ -2,7 +2,9 @@
 
 
 #include "AbilityDisplayWidget.h"
-
+#include "Ability.h"
+#include "AbilitySystemComponent.h"
+#include "Components/Image.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UAbilityDisplayWidget::SetAbilityDisplay(UAbilitySystemComponent* AbilitySystem)

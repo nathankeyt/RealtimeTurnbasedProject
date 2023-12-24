@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Ability.h"
-#include "ProjectileSpawner.h"
-#include "StatModifierApplicator.h"
 #include "BasicProjectile.generated.h"
+
+class UProjectileSpawner;
+class ABaseCharacter;
 
 /**
  * 

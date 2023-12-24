@@ -2,8 +2,6 @@
 
 
 #include "EnemyCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Stat.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()

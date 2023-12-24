@@ -2,10 +2,11 @@
 
 
 #include "ProjectileSpawner.h"
-
 #include "Kismet/KismetMathLibrary.h"
+#include "Projectile.h"
+#include "Camera/CameraComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "MyProject/PlayerCharacter.h"
+#include "PlayerCharacter.h"
 
 UProjectileSpawner::UProjectileSpawner()
 {

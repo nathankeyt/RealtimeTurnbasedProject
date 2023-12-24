@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "MyAnimNotify.generated.h"
+#include "AttackBoneNotify.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYPROJECT_API UMyAnimNotify : public UAnimNotify
+class MYPROJECT_API UAttackBoneNotify : public UAnimNotify
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FName BoneName = FName(TEXT("hand_l"));
 
-	protected:
-		virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+protected:
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 };
