@@ -33,30 +33,54 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* Mana;
 
-	UPROPERTY(BlueprintReadWrite, Instanced)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* MovementSpeed;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	TArray<FName> AttackBoneNames;
 	
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
 	bool IsAttacking;
 	
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
 	bool CanPunch = true;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,  meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = Combat)
 	TArray<AActor*> CurrActorsHit;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	float MainAttackTraceRadius = 50.0f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	float MainAttackTraceDistance = 50.0f;
+	
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = Combat)
+	AActor* Target = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	int InvulnerableCounter = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	int RecoveringCounter = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	bool IsRecovering = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	bool IsParrying = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	bool IsDodging = false; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	bool IsInvulnerable = false; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	TArray<UAnimMontage*> CombatMontages;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
+	TArray<UAnimMontage*> ParryMontages;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> HitReactionMontages;
 
@@ -69,30 +93,36 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float Ammo;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooting)
 	UAnimMontage* ShootMontage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooting)
 	FVector2D AimOffsetRotation;
-
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Trace", meta = (AllowPrivateAccess = "true"))
-	AActor* Target = nullptr;
 	
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void MainAttack();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Parry();
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void PlayMainAttackMontage();
+	void PlayMainAttackMontage(int Index);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void PlayHitReactionMontage();
+	void PlayParryMontage(int Index);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void PlayHitReactionMontage(int Index);
+
+	bool CanAct();
+	
+	void HandleHit();
 
 	void ActivateAbility(const int AbilityIndex);
 
@@ -118,7 +148,11 @@ public:
 	
 	UStat* GetMovementSpeed() const { return MovementSpeed; }
 
-	void OnPunchingMontageEnd(UAnimMontage* Montage_, bool interrupted_);
+	void OnCombatMontageEnd(UAnimMontage* Montage_, bool interrupted_);
+
+	void OnParryMontageEnd(UAnimMontage* Montage_, bool interrupted_);
+
+	void OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interrupted_);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

@@ -31,25 +31,71 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsInvulnerable)
+	{
+		if (InvulnerableCounter < 50)
+		{
+			InvulnerableCounter++;
+		}
+		else
+		{
+			InvulnerableCounter = 0;
+			IsInvulnerable = false;
+		}
+	}
+
+	/*
+	if (IsRecovering)
+	{
+		if (RecoveringCounter < 100)
+		{
+			RecoveringCounter++;
+		}
+		else
+		{
+			RecoveringCounter = 0;
+			IsRecovering = false;
+		}
+	} */
+	
+	if (!CanPunch && !AttackBoneNames.IsEmpty()) {
+		CheckFistCollision(AttackBoneNames[0]);
+	}
 }
 
 // Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
-void ABaseCharacter::OnPunchingMontageEnd(UAnimMontage* Montage_, bool interrupted_) {
+void ABaseCharacter::OnCombatMontageEnd(UAnimMontage* Montage_, bool interrupted_) {
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("resetting isattacking")));
 	IsAttacking = false;
 	CurrActorsHit.Empty();
 }
 
-void ABaseCharacter::PlayHitReactionMontage_Implementation()
+void ABaseCharacter::OnParryMontageEnd(UAnimMontage* Montage_, bool interrupted_)
 {
-	if (!HitReactionMontages.IsEmpty())
+	IsParrying = false;
+}
+
+void ABaseCharacter::OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interrupted_)
+{
+	IsRecovering = false;
+}
+
+void ABaseCharacter::PlayHitReactionMontage_Implementation(int Index)
+{
+	if (!HitReactionMontages.IsEmpty() && Index < HitReactionMontages.Num())
 	{
-		PlayAnimMontage(HitReactionMontages[FMath::RandRange(0, HitReactionMontages.Num() - 1)]);
+		PlayAnimMontage(HitReactionMontages[Index]);
+
+		FOnMontageEnded EndDelegate;
+        
+		EndDelegate.BindUObject(this, &ABaseCharacter::OnHitReactionMontageEnd);
+        
+		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
 	}
 }
 
@@ -92,6 +138,8 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 
 	TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
 
+	CurrActorsHit.Add(this);
+
 	const bool Hit = UKismetSystemLibrary::SphereTraceSingleForObjects(
 		GetWorld(), 
 		Start, 
@@ -106,20 +154,38 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 
 	if (Hit) {
 		AActor* HitActor = HitResult.GetActor();
-		ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor);
 
 		CurrActorsHit.Add(HitActor);
-
+		
+		ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor);
+		
 		if (HitEnemy != nullptr) {
-			HitEnemy->PlayHitReactionMontage();
+			HitEnemy->HandleHit();
 		}
         
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *HitActor->GetName()));
 	}
 }
 
+void ABaseCharacter::HandleHit()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
+
+	if (IsInvulnerable)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit in iFrame")));
+	}
+	else
+	{
+		IsRecovering = true;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
+		PlayHitReactionMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
+	}
+}
+
+
 void ABaseCharacter::MainAttack_Implementation() {
-	if (Controller != nullptr && CanPunch) {
+	if (Controller != nullptr && CanAct()) {
 		CanPunch = false;
 		IsAttacking = true;
 		
@@ -154,19 +220,57 @@ void ABaseCharacter::MainAttack_Implementation() {
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
 		}
 
-		PlayMainAttackMontage();
+		PlayMainAttackMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
 		//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
 	}  
 }
 
-void ABaseCharacter::PlayMainAttackMontage_Implementation() {
-	ACharacter::PlayAnimMontage(CombatMontages[FMath::RandRange(0, CombatMontages.Num() - 1)]); // implement random num gen on server
+void ABaseCharacter::Parry_Implementation()
+{
+	if (CanAct())
+	{
+		IsInvulnerable = true;
+		IsParrying = true;
+		PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
+	}
+}
 
-	FOnMontageEnded EndDelegate;
+void ABaseCharacter::PlayParryMontage_Implementation(int Index)
+{
+	if (!ParryMontages.IsEmpty() && Index < ParryMontages.Num())
+	{
+		ACharacter::PlayAnimMontage(ParryMontages[Index]);
+
+		FOnMontageEnded EndDelegate;
         
-	EndDelegate.BindUObject(this, &ABaseCharacter::OnPunchingMontageEnd);
+		EndDelegate.BindUObject(this, &ABaseCharacter::OnParryMontageEnd);
         
-	GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+	}
+}
+
+
+void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
+	if (!CombatMontages.IsEmpty() && Index < CombatMontages.Num())
+	{
+		ACharacter::PlayAnimMontage(CombatMontages[Index]); // implement random num gen on server
+
+		FOnMontageEnded EndDelegate;
+        
+		EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
+        
+		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+	}
+}
+
+bool ABaseCharacter::CanAct()
+{
+	if (!CanPunch || IsParrying || IsDodging || IsRecovering)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

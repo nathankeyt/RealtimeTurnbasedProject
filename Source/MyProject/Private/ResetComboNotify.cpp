@@ -7,7 +7,9 @@
 void UResetComboNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	ABaseCharacter* NotifiedCharacter = Cast<ABaseCharacter>(MeshComp->GetOwner());
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("attempting to cast to base character")));
 	if (NotifiedCharacter != nullptr) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("attempting to set can punch to true")));
 		NotifiedCharacter->SetCanPunch(true);
 	}
 }

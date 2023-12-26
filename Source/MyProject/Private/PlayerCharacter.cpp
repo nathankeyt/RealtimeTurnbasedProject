@@ -69,10 +69,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
     
-    if (!CanPunch && !AttackBoneNames.IsEmpty()) {
-        CheckFistCollision(AttackBoneNames[0]);
-    }
-    
     if (GetMesh() != nullptr && Target != nullptr) {
         SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()));
     }
@@ -86,6 +82,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::Jump);
 
         EnhancedInputComponent->BindAction(MainAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::MainAttackInputHandler);
+
+        EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryInputHandler);
         
         EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
 
@@ -132,6 +130,11 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
     // SetActorRotation(FollowCamera->GetComponentRotation());
     
     MainAttack();
+}
+
+void APlayerCharacter::ParryInputHandler(const FInputActionValue& Value)
+{
+    Parry();
 }
 
 
