@@ -55,7 +55,7 @@ public:
 	UInputAction* LockOnAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* ParryAction;
+	UInputAction* BlockAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
@@ -82,7 +82,9 @@ protected:
 	
 	void MainAttackInputHandler(const FInputActionValue& Value);
 	
-	void ParryInputHandler(const FInputActionValue& Value);
+	void BlockInputHandler(const FInputActionValue& Value);
+
+	void EndBlockInputHandler(const FInputActionValue& Value);
 
 	void AltAttackInputHandler(const FInputActionValue& Value);
 

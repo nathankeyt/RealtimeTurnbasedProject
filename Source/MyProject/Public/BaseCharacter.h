@@ -70,6 +70,9 @@ public:
 	bool IsParrying = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	bool IsBlocking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	bool IsDodging = false; 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
@@ -109,7 +112,10 @@ public:
 	void MainAttack();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Parry();
+	void Block();
+	
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void EndBlock();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void PlayMainAttackMontage(int Index);
@@ -121,6 +127,9 @@ public:
 	void PlayHitReactionMontage(int Index);
 
 	bool CanAct();
+
+	UFUNCTION(BlueprintCallable)
+	bool HasTarget();
 	
 	void HandleHit();
 

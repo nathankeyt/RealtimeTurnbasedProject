@@ -41,6 +41,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 		{
 			InvulnerableCounter = 0;
 			IsInvulnerable = false;
+			IsParrying = false;
 		}
 	}
 
@@ -174,6 +175,7 @@ void ABaseCharacter::HandleHit()
 	if (IsInvulnerable)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit in iFrame")));
+		PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
 	}
 	else
 	{
@@ -225,15 +227,24 @@ void ABaseCharacter::MainAttack_Implementation() {
 	}  
 }
 
-void ABaseCharacter::Parry_Implementation()
+void ABaseCharacter::Block_Implementation()
 {
 	if (CanAct())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block started")));
 		IsInvulnerable = true;
 		IsParrying = true;
-		PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
+		IsBlocking = true;
+		// PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
 	}
 }
+
+void ABaseCharacter::EndBlock_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block ended")));
+	IsBlocking = false;
+}
+
 
 void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 {
@@ -272,6 +283,12 @@ bool ABaseCharacter::CanAct()
 
 	return true;
 }
+
+bool ABaseCharacter::HasTarget()
+{
+	return Target != nullptr;
+}
+
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

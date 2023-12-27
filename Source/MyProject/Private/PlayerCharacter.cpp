@@ -82,8 +82,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::Jump);
 
         EnhancedInputComponent->BindAction(MainAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::MainAttackInputHandler);
-
-        EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryInputHandler);
+        
+        EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APlayerCharacter::BlockInputHandler);
+        EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndBlockInputHandler);
         
         EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
 
@@ -132,11 +133,15 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
     MainAttack();
 }
 
-void APlayerCharacter::ParryInputHandler(const FInputActionValue& Value)
+void APlayerCharacter::BlockInputHandler(const FInputActionValue& Value)
 {
-    Parry();
+    Block();
 }
 
+void APlayerCharacter::EndBlockInputHandler(const FInputActionValue& Value)
+{
+    EndBlock();
+}
 
 
 void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
