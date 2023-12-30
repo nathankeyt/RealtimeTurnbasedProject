@@ -54,12 +54,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	float MainAttackTraceDistance = 50.0f;
 	
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = Combat)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
 	AActor* Target = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
-	int InvulnerableCounter = 0;
+	int ParryCounter = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	int MaxParryCounter = 30;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	int RecoveringCounter = 0;
 
@@ -75,9 +78,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	bool IsDodging = false; 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
-	bool IsInvulnerable = false; 
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	TArray<UAnimMontage*> CombatMontages;
 
@@ -89,7 +89,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UAbilitySystemComponent* AbilitySystem;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<AProjectile> ProjectileClass;
 
@@ -126,6 +126,10 @@ public:
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayHitReactionMontage(int Index);
 
+	void UpdateLookAtTarget();
+
+	void IncrementParryCounter(const int MaxCounterVal);
+	
 	bool CanAct();
 
 	UFUNCTION(BlueprintCallable)

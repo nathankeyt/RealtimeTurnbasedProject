@@ -6,6 +6,7 @@
 #include "StatModifier.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
@@ -31,19 +32,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsInvulnerable)
-	{
-		if (InvulnerableCounter < 50)
-		{
-			InvulnerableCounter++;
-		}
-		else
-		{
-			InvulnerableCounter = 0;
-			IsInvulnerable = false;
-			IsParrying = false;
-		}
-	}
+	IncrementParryCounter(MaxParryCounter);
 
 	/*
 	if (IsRecovering)
@@ -58,10 +47,19 @@ void ABaseCharacter::Tick(float DeltaTime)
 			IsRecovering = false;
 		}
 	} */
+
+	if (GetMesh() != nullptr && Target != nullptr) {
+		SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()));
+	}
 	
 	if (!CanPunch && !AttackBoneNames.IsEmpty()) {
 		CheckFistCollision(AttackBoneNames[0]);
 	}
+}
+
+void ABaseCharacter::UpdateLookAtTarget()
+{
+	
 }
 
 // Called to bind functionality to input
@@ -168,18 +166,37 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 	}
 }
 
+void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
+{
+	if (IsParrying)
+	{
+		if (ParryCounter < MaxCounterVal)
+		{
+			ParryCounter++;
+		}
+		else
+		{
+			ParryCounter = 0;
+			IsParrying = false;
+		}
+	}
+}
+
+
 void ABaseCharacter::HandleHit()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
-
-	if (IsInvulnerable)
+	if (IsParrying)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit in iFrame")));
 		PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
+		
+
 	}
 	else
 	{
 		IsRecovering = true;
+		CanPunch = true;
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
 		PlayHitReactionMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
 	}
@@ -232,7 +249,6 @@ void ABaseCharacter::Block_Implementation()
 	if (CanAct())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block started")));
-		IsInvulnerable = true;
 		IsParrying = true;
 		IsBlocking = true;
 		// PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
@@ -264,7 +280,7 @@ void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
 	if (!CombatMontages.IsEmpty() && Index < CombatMontages.Num())
 	{
-		ACharacter::PlayAnimMontage(CombatMontages[Index]); // implement random num gen on server
+		ACharacter::PlayAnimMontage(CombatMontages[Index], 1.2f); // implement random num gen on server
 
 		FOnMontageEnded EndDelegate;
         
@@ -276,12 +292,12 @@ void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
 
 bool ABaseCharacter::CanAct()
 {
-	if (!CanPunch || IsParrying || IsDodging || IsRecovering)
+	if (CanPunch && !IsParrying && !IsDodging && !IsRecovering && !IsBlocking)
 	{
-		return false;
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 bool ABaseCharacter::HasTarget()

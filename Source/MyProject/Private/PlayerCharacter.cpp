@@ -68,10 +68,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-    
-    if (GetMesh() != nullptr && Target != nullptr) {
-        SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()));
-    }
 }
 
 // Called to bind functionality to input
@@ -103,7 +99,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value) {
-    FVector2D MovementVector = Value.Get<FVector2D>();
+    const FVector2D MovementVector = Value.Get<FVector2D>();
 
     if (Controller != nullptr && ! IsAttacking) {
         const FRotator Rotation = Controller->GetControlRotation();
@@ -118,7 +114,7 @@ void APlayerCharacter::Move(const FInputActionValue& Value) {
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value) {
-    FVector2D LookAxisVector = Value.Get<FVector2D>();
+    const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
     if (Controller != nullptr) {
         AddControllerYawInput(LookAxisVector.X);
@@ -135,6 +131,7 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
 
 void APlayerCharacter::BlockInputHandler(const FInputActionValue& Value)
 {
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block press started")));
     Block();
 }
 
@@ -184,9 +181,9 @@ void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
 }
 
 void APlayerCharacter::SetCameraBoomAttachment(USceneComponent* AttachComponent) {
-    FAttachmentTransformRules rules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, false);
+    const FAttachmentTransformRules Rules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, false);
 
-    CameraBoom->AttachToComponent(AttachComponent, rules);
+    CameraBoom->AttachToComponent(AttachComponent, Rules);
 }
 
 void APlayerCharacter::UseAbility(const FInputActionValue& Value)
