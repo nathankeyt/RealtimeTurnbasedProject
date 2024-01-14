@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "MotionWarpingComponent.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -89,6 +90,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UAbilitySystemComponent* AbilitySystem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMotionWarpingComponent* MotionWarpingComponent;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<AProjectile> ProjectileClass;

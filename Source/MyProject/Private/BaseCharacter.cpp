@@ -17,6 +17,7 @@ ABaseCharacter::ABaseCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +49,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 		}
 	} */
 
-	if (GetMesh() != nullptr && Target != nullptr) {
+	if (GetMesh() != nullptr && HasTarget()) {
 		SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()));
 	}
 	
@@ -234,10 +235,20 @@ void ABaseCharacter::MainAttack_Implementation() {
 			HitResult,
 			true);
 
+		
+
 		if (Hit) {
 			Target = HitResult.GetActor();
+			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("AttackTarget", Target->GetTransform());
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
 		}
+		else
+		{
+			MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("AttackTarget", GetActorLocation() + (GetActorForwardVector() * 100.0f));
+			// MotionWarpingComponent->RemoveWarpTarget("AttackTarget");
+		}
+
+		
 
 		PlayMainAttackMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
 		//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);

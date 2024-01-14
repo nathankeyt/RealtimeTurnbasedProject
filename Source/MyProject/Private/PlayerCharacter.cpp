@@ -146,6 +146,7 @@ void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
         Target = nullptr;
     }
     else {
+        
         const FVector Start = GetActorLocation();
         const FVector End = GetActorLocation() + (FollowCamera->GetForwardVector() * LockOnTraceDistance);
 
