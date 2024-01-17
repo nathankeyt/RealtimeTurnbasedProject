@@ -49,6 +49,17 @@ void ABaseCharacter::Tick(float DeltaTime)
 		}
 	} */
 
+	if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(nullptr))
+	{
+		if (PauseHitCounter > MaxPauseHitCounter)
+		{
+			GetMesh()->GetAnimInstance()->Montage_Resume(nullptr);
+			PauseHitCounter = 0;
+		}
+
+		PauseHitCounter++;
+	}
+
 	if (GetMesh() != nullptr && HasTarget()) {
 		SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()));
 	}
@@ -162,6 +173,8 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		if (HitEnemy != nullptr) {
 			HitEnemy->HandleHit();
 		}
+		
+		GetMesh()->GetAnimInstance()->Montage_Pause();
         
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *HitActor->GetName()));
 	}
@@ -187,12 +200,11 @@ void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
 void ABaseCharacter::HandleHit()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
+	
 	if (IsParrying)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit in iFrame")));
 		PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
-		
-
 	}
 	else
 	{
