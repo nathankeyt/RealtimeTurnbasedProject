@@ -13,6 +13,7 @@ AEnemyCharacter::AEnemyCharacter()
 // Called when the game starts or when spawned
 void AEnemyCharacter::BeginPlay()
 {
+	// comment test
 	Super::BeginPlay();
 
 }

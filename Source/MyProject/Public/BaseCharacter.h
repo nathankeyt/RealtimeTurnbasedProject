@@ -21,7 +21,7 @@ class MYPROJECT_API ABaseCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* Health;
 
