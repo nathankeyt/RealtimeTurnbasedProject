@@ -50,7 +50,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	} */
 
 	if (GetMesh() != nullptr && HasTarget()) {
-		SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()));
+		SetActorRotation(FRotator(GetActorRotation().Pitch, UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()).Yaw, GetActorRotation().Roll));
 	}
 	
 	if (!CanPunch && !AttackBoneNames.IsEmpty()) {
