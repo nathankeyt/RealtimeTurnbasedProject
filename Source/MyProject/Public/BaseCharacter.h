@@ -63,6 +63,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	int MaxParryCounter = 30;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	int PauseHitCounter = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	int MaxPauseHitCounter = 5;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	int RecoveringCounter = 0;
