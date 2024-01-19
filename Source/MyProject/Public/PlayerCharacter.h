@@ -56,6 +56,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* BlockAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* DodgeAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
@@ -85,7 +88,9 @@ protected:
 	void BlockInputHandler(const FInputActionValue& Value);
 
 	void EndBlockInputHandler(const FInputActionValue& Value);
-
+	
+	void DodgeInputHandler(const FInputActionValue& Value);
+	
 	void AltAttackInputHandler(const FInputActionValue& Value);
 
 	UFUNCTION(Server, Reliable)

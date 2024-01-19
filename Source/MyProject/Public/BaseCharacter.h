@@ -8,10 +8,27 @@
 #include "BaseCharacter.generated.h"
 
 
+class UComboNode;
 class UAbilitySystemComponent;
 class UStat;
 class UStatModifier;
 class AProjectile;
+
+USTRUCT(BlueprintType)
+struct FDodgeMontageStruct
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* BackDodge;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightDodge;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftDodge;
+
+};
 
 UCLASS(Abstract)
 class MYPROJECT_API ABaseCharacter : public ACharacter
@@ -83,16 +100,28 @@ public:
 	bool IsBlocking = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
-	bool IsDodging = false; 
+	bool IsDodging = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	FVector LastFistCollisionLocation = FVector::Zero();
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = CombatMontages )
+	TArray<UComboNode*> CombatMontages;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	TArray<UAnimMontage*> CombatMontages;
+	int ComboCounter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
+	UComboNode* CurrComboNode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	TArray<UAnimMontage*> ParryMontages;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	TArray<UAnimMontage*> HitReactionMontages;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
+	FDodgeMontageStruct DodgeMontages;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UAbilitySystemComponent* AbilitySystem;
@@ -126,6 +155,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void EndBlock();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Dodge();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void PlayMainAttackMontage(int Index);
@@ -135,6 +167,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayHitReactionMontage(int Index);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void PlayDodgeMontage(FVector Direction);
 
 	void UpdateLookAtTarget();
 
@@ -171,11 +206,17 @@ public:
 	
 	UStat* GetMovementSpeed() const { return MovementSpeed; }
 
+	TArray<FName> GetAttackBoneNames() const { return AttackBoneNames; }
+
 	void OnCombatMontageEnd(UAnimMontage* Montage_, bool interrupted_);
 
 	void OnParryMontageEnd(UAnimMontage* Montage_, bool interrupted_);
 
+	void OnDodgeMontageEnd(UAnimMontage* Montage_, bool interrupted_);
+
 	void OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interrupted_);
+
+	void SetLastFistCollision(FVector Location) { LastFistCollisionLocation = Location; }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

@@ -6,6 +6,7 @@
 #include "StatModifier.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
+#include "ComboNode.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -83,6 +84,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void ABaseCharacter::OnCombatMontageEnd(UAnimMontage* Montage_, bool interrupted_) {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("resetting isattacking")));
 	IsAttacking = false;
+	LastFistCollisionLocation = FVector::Zero();
 	CurrActorsHit.Empty();
 }
 
@@ -140,9 +142,18 @@ void ABaseCharacter::AddMovementSpeedModifier(UStatModifier* StatModifier)
 
 void ABaseCharacter::CheckFistCollision(FName BoneName) {
 	FTransform HandBone = GetMesh()->GetBoneTransform(BoneName);
-	const FVector Start = HandBone.GetLocation();
-	const FVector End = Start;
+	
+	const FVector End = HandBone.GetLocation();
+	
+	FVector Start = End;
 
+	if (!LastFistCollisionLocation.IsZero())
+	{
+		Start = LastFistCollisionLocation;
+	}
+
+	LastFistCollisionLocation = End;
+	
 	FHitResult HitResult;
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
@@ -155,7 +166,7 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		GetWorld(), 
 		Start, 
 		End, 
-		5.0,
+		7.0,
 		TraceObjects,
 		false,
 		CurrActorsHit,
@@ -201,7 +212,7 @@ void ABaseCharacter::HandleHit()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
 	
-	if (IsParrying)
+	if (IsParrying || IsDodging)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit in iFrame")));
 		PlayParryMontage(FMath::RandRange(0, ParryMontages.Num() - 1));
@@ -260,7 +271,7 @@ void ABaseCharacter::MainAttack_Implementation() {
 			// MotionWarpingComponent->RemoveWarpTarget("AttackTarget");
 		}
 
-		
+		LastFistCollisionLocation = FVector::Zero();
 
 		PlayMainAttackMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
 		//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
@@ -284,6 +295,46 @@ void ABaseCharacter::EndBlock_Implementation()
 	IsBlocking = false;
 }
 
+void ABaseCharacter::Dodge_Implementation()
+{
+	if (CanAct())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block started")));
+		IsDodging = true;
+		
+		PlayDodgeMontage(FVector(FVector::DotProduct(GetActorForwardVector(),  GetVelocity()), FVector::DotProduct(GetActorRightVector(), GetVelocity()), 0.0f));
+	}
+}
+
+void ABaseCharacter::PlayDodgeMontage_Implementation(FVector Direction)
+{
+	if (DodgeMontages.BackDodge != nullptr || DodgeMontages.LeftDodge != nullptr || DodgeMontages.RightDodge != nullptr) {
+		const int RandNum = FMath::RandRange(0, 2);
+		if (RandNum == 0) //Direction.Y < 0.0f)
+		{
+			ACharacter::PlayAnimMontage(DodgeMontages.LeftDodge);
+		}
+		else if (RandNum == 1)//Direction.Y > 0.0f)
+		{
+			ACharacter::PlayAnimMontage(DodgeMontages.RightDodge);
+		}
+		else
+		{
+			ACharacter::PlayAnimMontage(DodgeMontages.BackDodge);
+		}
+	
+		FOnMontageEnded EndDelegate;
+		        
+		EndDelegate.BindUObject(this, &ABaseCharacter::OnDodgeMontageEnd);
+		        
+		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+	}
+}
+
+void ABaseCharacter::OnDodgeMontageEnd(UAnimMontage* Montage_, bool interrupted_)
+{
+	IsDodging = false;
+}
 
 void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 {
@@ -300,16 +351,36 @@ void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 }
 
 
+
 void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
 	if (!CombatMontages.IsEmpty() && Index < CombatMontages.Num())
 	{
-		ACharacter::PlayAnimMontage(CombatMontages[Index], 1.2f); // implement random num gen on server
+		if (ComboCounter == 0 || CurrComboNode == nullptr)
+		{
+			CurrComboNode = CombatMontages[Index];
+		}
+		else if (ComboCounter == 2)
+		{
+			ComboCounter = -1;
+			CurrComboNode = CurrComboNode->End;
+		}
+		else
+		{
+			CurrComboNode = CurrComboNode->Next;
+		}
 
-		FOnMontageEnded EndDelegate;
-        
-		EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
-        
-		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+		ComboCounter++;
+
+		if (CurrComboNode != nullptr && CurrComboNode->CurrMontage != nullptr)
+		{
+			ACharacter::PlayAnimMontage(CurrComboNode->CurrMontage, 1.0f);
+			
+			FOnMontageEnded EndDelegate;
+	        
+			EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
+	        
+			GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+		}
 	}
 }
 

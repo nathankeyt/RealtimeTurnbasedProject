@@ -81,6 +81,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APlayerCharacter::BlockInputHandler);
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndBlockInputHandler);
+
+        EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::DodgeInputHandler);
         
         EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
 
@@ -139,6 +141,13 @@ void APlayerCharacter::EndBlockInputHandler(const FInputActionValue& Value)
 {
     EndBlock();
 }
+
+void APlayerCharacter::DodgeInputHandler(const FInputActionValue& Value)
+{
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("dodge press started")));
+    Dodge();
+}
+
 
 
 void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
