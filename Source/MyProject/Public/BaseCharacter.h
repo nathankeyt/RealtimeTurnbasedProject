@@ -113,7 +113,7 @@ public:
 	int PauseHitCounter = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
-	int MaxPauseHitCounter = 5;
+	int MaxPauseHitCounter = 10;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	int RecoveringCounter = 0;
