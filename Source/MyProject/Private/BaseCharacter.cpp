@@ -34,6 +34,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UKismetSystemLibrary::FlushPersistentDebugLines(GetWorld());
+
 	IncrementParryCounter(MaxParryCounter);
 
 	/*
@@ -98,16 +100,64 @@ void ABaseCharacter::OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interr
 	IsRecovering = false;
 }
 
-void ABaseCharacter::PlayHitReactionMontage_Implementation(int Index)
+void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location)
 {
-	if (!HitReactionMontages.IsEmpty() && Index < HitReactionMontages.Num())
-	{
-		PlayAnimMontage(HitReactionMontages[Index]);
+	if (HitReactionMontages.FrontHit != nullptr && HitReactionMontages.FrontHeadHit != nullptr) {
+		const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
+		const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
+		FVector DiffFromHead = HeadTransform.GetLocation() - Location;
+		FVector DiffFromRoot = RootTransform.GetLocation() - Location;
 
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromHead.Length()));
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromRoot.Length()));
+
+		if (DiffFromHead.Length() < DiffFromRoot.Length())
+		{
+			const UE::Math::TQuat HeadRotation = HeadTransform.GetRotation();
+			DiffFromHead.Normalize();
+			const float UpwardsDirection = DiffFromHead.Dot(HeadRotation.GetUpVector());
+			const float SidewaysDirection = DiffFromHead.Dot(HeadRotation.GetRightVector());
+			const float ForwardDirection = DiffFromHead.Dot(HeadRotation.GetForwardVector());
+
+			if (SidewaysDirection >= 0.25f && HitReactionMontages.RightHeadHit != nullptr)
+			{ 
+				PlayAnimMontage(HitReactionMontages.RightHeadHit);
+			}
+			else if (SidewaysDirection <= -0.25f && HitReactionMontages.LeftHeadHit != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.LeftHeadHit);
+			}
+			else
+			{
+				PlayAnimMontage(HitReactionMontages.FrontHeadHit);
+			}
+		}
+		else
+		{
+			const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
+			DiffFromRoot.Normalize();
+			const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
+			const float SidewaysDirection = DiffFromRoot.Dot(RootRotation.GetRightVector());
+			const float ForwardDirection = DiffFromRoot.Dot(RootRotation.GetForwardVector());
+
+			if (SidewaysDirection >= 0.5f && HitReactionMontages.RightHit != nullptr)
+			{ 
+				PlayAnimMontage(HitReactionMontages.RightHit);
+			}
+			else if (SidewaysDirection <= -0.5f && HitReactionMontages.LeftHit != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.LeftHit);
+			}
+			else
+			{
+				PlayAnimMontage(HitReactionMontages.FrontHit);
+			}
+		}
+		
 		FOnMontageEnded EndDelegate;
-        
+		        
 		EndDelegate.BindUObject(this, &ABaseCharacter::OnHitReactionMontageEnd);
-        
+		        
 		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
 	}
 }
@@ -166,7 +216,7 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		GetWorld(), 
 		Start, 
 		End, 
-		7.0,
+		FistCollisionTraceRadius,
 		TraceObjects,
 		false,
 		CurrActorsHit,
@@ -182,7 +232,7 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor);
 		
 		if (HitEnemy != nullptr) {
-			HitEnemy->HandleHit();
+			HitEnemy->HandleHit(Start);
 		}
 		
 		GetMesh()->GetAnimInstance()->Montage_Pause();
@@ -208,7 +258,7 @@ void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
 }
 
 
-void ABaseCharacter::HandleHit()
+void ABaseCharacter::HandleHit(const FVector& HitLocation)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
 	
@@ -222,7 +272,7 @@ void ABaseCharacter::HandleHit()
 		IsRecovering = true;
 		CanPunch = true;
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
-		PlayHitReactionMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
+		PlayHitReactionMontage(HitLocation);
 	}
 }
 
@@ -231,6 +281,7 @@ void ABaseCharacter::MainAttack_Implementation() {
 	if (Controller != nullptr && CanAct()) {
 		CanPunch = false;
 		IsAttacking = true;
+		AttackBoneNames.Empty();
 		
 		const FVector Start = GetActorLocation() + (GetCapsuleComponent()->GetForwardVector() * 50);
 		const FVector End = Start;

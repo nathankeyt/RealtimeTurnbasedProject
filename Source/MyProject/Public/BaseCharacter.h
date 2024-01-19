@@ -30,6 +30,31 @@ struct FDodgeMontageStruct
 
 };
 
+USTRUCT(BlueprintType)
+struct FHitMontageStruct
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* FrontHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* FrontHeadHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightHeadHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftHeadHit;
+
+};
+
 UCLASS(Abstract)
 class MYPROJECT_API ABaseCharacter : public ACharacter
 {
@@ -71,6 +96,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	float MainAttackTraceDistance = 50.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	float FistCollisionTraceRadius = 7.0f;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
 	AActor* Target = nullptr;
@@ -118,7 +146,7 @@ public:
 	TArray<UAnimMontage*> ParryMontages;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	TArray<UAnimMontage*> HitReactionMontages;
+	FHitMontageStruct HitReactionMontages;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	FDodgeMontageStruct DodgeMontages;
@@ -166,7 +194,7 @@ public:
 	void PlayParryMontage(int Index);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void PlayHitReactionMontage(int Index);
+	void PlayHitReactionMontage(const FVector& Location);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayDodgeMontage(FVector Direction);
@@ -180,7 +208,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool HasTarget();
 	
-	void HandleHit();
+	void HandleHit(const FVector& HitLocation);
 
 	void ActivateAbility(const int AbilityIndex);
 
@@ -217,6 +245,8 @@ public:
 	void OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interrupted_);
 
 	void SetLastFistCollision(FVector Location) { LastFistCollisionLocation = Location; }
+
+	void SetFistCollisionTraceRadius(float TraceRadius) { FistCollisionTraceRadius = TraceRadius; }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

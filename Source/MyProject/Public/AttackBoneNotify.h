@@ -17,6 +17,9 @@ class MYPROJECT_API UAttackBoneNotify : public UAnimNotify
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FName BoneName = FName(TEXT("hand_l"));
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	float TraceRadius = 7.0f;
+
 protected:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 };
