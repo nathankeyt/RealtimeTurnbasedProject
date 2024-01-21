@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AttackLevelEnum.h"
 #include "GameFramework/Character.h"
 #include "MotionWarpingComponent.h"
 #include "BaseCharacter.generated.h"
 
 
+enum class EAttackLevelEnum : uint8;
 class UComboNode;
 class UAbilitySystemComponent;
 class UStat;
@@ -45,6 +47,15 @@ struct FHitMontageStruct
 	UAnimMontage* LeftHit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* FrontHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
 	UAnimMontage* FrontHeadHit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
@@ -52,6 +63,33 @@ struct FHitMontageStruct
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
 	UAnimMontage* LeftHeadHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* FrontHeadHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightHeadHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftHeadHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* FrontLegHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightLegHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftLegHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* FrontLegHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* RightLegHitH;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* LeftLegHitH;
 
 };
 
@@ -84,6 +122,9 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, Category = Combat)
 	bool IsAttacking;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	EAttackLevelEnum AttackLevel = EAttackLevelEnum::AE_LightAttack;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
 	bool CanPunch = true;
@@ -101,7 +142,10 @@ public:
 	float FistCollisionTraceRadius = 7.0f;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
-	AActor* Target = nullptr;
+	ABaseCharacter* Target = nullptr;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
+	FTransform TargetTransform;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	int ParryCounter = 0;
@@ -129,6 +173,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	bool IsDodging = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool MainAttackIsCharging = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	FVector LastFistCollisionLocation = FVector::Zero();
@@ -179,6 +226,12 @@ public:
 	void MainAttack();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void SetHeavyAttack();
+	
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void MainAttackRelease();
+	
+	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Block();
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
@@ -194,7 +247,7 @@ public:
 	void PlayParryMontage(int Index);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void PlayHitReactionMontage(const FVector& Location);
+	void PlayHitReactionMontage(const FVector& Location, EAttackLevelEnum AttackLevelI);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayDodgeMontage(FVector Direction);
@@ -208,7 +261,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool HasTarget();
 	
-	void HandleHit(const FVector& HitLocation);
+	void HandleHit(const FVector& HitLocation, EAttackLevelEnum AttackLevelI);
 
 	void ActivateAbility(const int AbilityIndex);
 

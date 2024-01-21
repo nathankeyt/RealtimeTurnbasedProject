@@ -17,11 +17,11 @@ class MYPROJECT_API UComboNode : public UDataAsset
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ComboMontages)
-	UAnimMontage* CurrMontage;
+	UAnimMontage* CurrMontageIP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ComboMontages)
+	UAnimMontage* CurrMontageM;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, Category=ComboMontages)
 	UComboNode* Next;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, Category=ComboMontages)
-	UComboNode* End;
 };

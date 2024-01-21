@@ -100,60 +100,105 @@ void ABaseCharacter::OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interr
 	IsRecovering = false;
 }
 
-void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location)
+void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location, EAttackLevelEnum AttackLevelI)
 {
-	if (HitReactionMontages.FrontHit != nullptr && HitReactionMontages.FrontHeadHit != nullptr) {
-		const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
-		const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
-		FVector DiffFromHead = HeadTransform.GetLocation() - Location;
-		FVector DiffFromRoot = RootTransform.GetLocation() - Location;
+	const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
+	const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
+	FVector DiffFromHead = HeadTransform.GetLocation() - Location;
+	FVector DiffFromRoot = RootTransform.GetLocation() - Location;
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromHead.Length()));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromRoot.Length()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromHead.Length()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromRoot.Length()));
 
-		if (DiffFromHead.Length() < DiffFromRoot.Length())
+	if (DiffFromHead.Length() * 1.5f < DiffFromRoot.Length())
+	{
+		const UE::Math::TQuat HeadRotation = HeadTransform.GetRotation();
+		DiffFromHead.Normalize();
+		const float UpwardsDirection = DiffFromHead.Dot(HeadRotation.GetUpVector());
+		const float SidewaysDirection = DiffFromHead.Dot(HeadRotation.GetRightVector());
+		const float ForwardDirection = DiffFromHead.Dot(HeadRotation.GetForwardVector());
+
+		if (SidewaysDirection >= 0.25f)
 		{
-			const UE::Math::TQuat HeadRotation = HeadTransform.GetRotation();
-			DiffFromHead.Normalize();
-			const float UpwardsDirection = DiffFromHead.Dot(HeadRotation.GetUpVector());
-			const float SidewaysDirection = DiffFromHead.Dot(HeadRotation.GetRightVector());
-			const float ForwardDirection = DiffFromHead.Dot(HeadRotation.GetForwardVector());
-
-			if (SidewaysDirection >= 0.25f && HitReactionMontages.RightHeadHit != nullptr)
-			{ 
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.RightHeadHit != nullptr)
+			{
 				PlayAnimMontage(HitReactionMontages.RightHeadHit);
 			}
-			else if (SidewaysDirection <= -0.25f && HitReactionMontages.LeftHeadHit != nullptr)
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.RightHeadHitH != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.RightHeadHitH);
+			}
+		}
+		else if (SidewaysDirection <= -0.25f)
+		{
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.LeftHeadHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.LeftHeadHit);
 			}
-			else
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.LeftHeadHitH != nullptr)
 			{
-				PlayAnimMontage(HitReactionMontages.FrontHeadHit);
+				PlayAnimMontage(HitReactionMontages.LeftHeadHitH);
 			}
 		}
 		else
 		{
-			const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
-			DiffFromRoot.Normalize();
-			const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
-			const float SidewaysDirection = DiffFromRoot.Dot(RootRotation.GetRightVector());
-			const float ForwardDirection = DiffFromRoot.Dot(RootRotation.GetForwardVector());
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.FrontHeadHit != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.FrontHeadHit);
+			}
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.FrontHeadHitH != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.FrontHeadHitH);
+			}
+		}
+	}
+	else
+	{
+		const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
+		DiffFromRoot.Normalize();
+		const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
+		const float SidewaysDirection = DiffFromRoot.Dot(RootRotation.GetRightVector());
+		const float ForwardDirection = DiffFromRoot.Dot(RootRotation.GetForwardVector());
 
-			if (SidewaysDirection >= 0.5f && HitReactionMontages.RightHit != nullptr)
-			{ 
+		if (SidewaysDirection >= 0.5f)
+		{
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.RightHit != nullptr)
+			{
 				PlayAnimMontage(HitReactionMontages.RightHit);
 			}
-			else if (SidewaysDirection <= -0.5f && HitReactionMontages.LeftHit != nullptr)
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.RightHitH != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit righth")));
+				PlayAnimMontage(HitReactionMontages.RightHitH);
+			}
+		}
+		else if (SidewaysDirection <= -0.5f)
+		{
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.LeftHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.LeftHit);
 			}
-			else
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.LeftHitH != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit lefth")));
+				PlayAnimMontage(HitReactionMontages.LeftHitH);
+			}
+		}
+		else
+		{
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.FrontHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.FrontHit);
 			}
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.FrontHitH != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit fronth")));
+				PlayAnimMontage(HitReactionMontages.FrontHitH);
+			}
 		}
-		
+	}
+
+	if (GetMesh()->GetAnimInstance()->Montage_IsActive(nullptr)) {
 		FOnMontageEnded EndDelegate;
 		        
 		EndDelegate.BindUObject(this, &ABaseCharacter::OnHitReactionMontageEnd);
@@ -192,9 +237,9 @@ void ABaseCharacter::AddMovementSpeedModifier(UStatModifier* StatModifier)
 
 void ABaseCharacter::CheckFistCollision(FName BoneName) {
 	FTransform HandBone = GetMesh()->GetBoneTransform(BoneName);
-	
+
 	const FVector End = HandBone.GetLocation();
-	
+
 	FVector Start = End;
 
 	if (!LastFistCollisionLocation.IsZero())
@@ -203,7 +248,7 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 	}
 
 	LastFistCollisionLocation = End;
-	
+
 	FHitResult HitResult;
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
@@ -228,18 +273,27 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		AActor* HitActor = HitResult.GetActor();
 
 		CurrActorsHit.Add(HitActor);
-		
-		ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor);
-		
-		if (HitEnemy != nullptr) {
-			HitEnemy->HandleHit(Start);
+	
+		if (ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor)) {
+			HitEnemy->HandleHit(Start, AttackLevel);
 		}
-		
+	
 		GetMesh()->GetAnimInstance()->Montage_Pause();
-        
+    
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *HitActor->GetName()));
 	}
 }
+
+void ABaseCharacter::SetHeavyAttack_Implementation()
+{
+	if (MainAttackIsCharging)
+	{
+		AttackLevel = EAttackLevelEnum::AE_HeavyAttack;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("set attack level heavy")));
+		MainAttackIsCharging = false;
+	}
+}
+
 
 void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
 {
@@ -258,7 +312,7 @@ void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
 }
 
 
-void ABaseCharacter::HandleHit(const FVector& HitLocation)
+void ABaseCharacter::HandleHit(const FVector& HitLocation, EAttackLevelEnum AttackLevelI)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
 	
@@ -272,13 +326,16 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation)
 		IsRecovering = true;
 		CanPunch = true;
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
-		PlayHitReactionMontage(HitLocation);
+		PlayHitReactionMontage(HitLocation, AttackLevelI);
 	}
 }
 
 
 void ABaseCharacter::MainAttack_Implementation() {
 	if (Controller != nullptr && CanAct()) {
+		AttackLevel = EAttackLevelEnum::AE_LightAttack;
+		MainAttackIsCharging = true;
+		
 		CanPunch = false;
 		IsAttacking = true;
 		AttackBoneNames.Empty();
@@ -309,16 +366,15 @@ void ABaseCharacter::MainAttack_Implementation() {
 			HitResult,
 			true);
 
-		
-
 		if (Hit) {
-			Target = HitResult.GetActor();
-			MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("AttackTarget", Target->GetTransform());
+			Target = Cast<ABaseCharacter>(HitResult.GetActor());
+			
+			// MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("AttackTarget", Target->GetTransform());
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
 		}
 		else
 		{
-			MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("AttackTarget", GetActorLocation() + (GetActorForwardVector() * 100.0f));
+			// MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("AttackTarget", GetActorLocation() + (GetActorForwardVector() * 100.0f));
 			// MotionWarpingComponent->RemoveWarpTarget("AttackTarget");
 		}
 
@@ -328,6 +384,13 @@ void ABaseCharacter::MainAttack_Implementation() {
 		//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
 	}  
 }
+
+void ABaseCharacter::MainAttackRelease_Implementation()
+{
+	MainAttackIsCharging = false;
+	GetMesh()->GetAnimInstance()->Montage_SetPlayRate(nullptr, 1.0f);
+}
+
 
 void ABaseCharacter::Block_Implementation()
 {
@@ -406,31 +469,37 @@ void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
 	if (!CombatMontages.IsEmpty() && Index < CombatMontages.Num())
 	{
-		if (ComboCounter == 0 || CurrComboNode == nullptr)
+		if (CurrComboNode == nullptr || CurrComboNode->Next == nullptr)
 		{
 			CurrComboNode = CombatMontages[Index];
-		}
-		else if (ComboCounter == 2)
-		{
-			ComboCounter = -1;
-			CurrComboNode = CurrComboNode->End;
 		}
 		else
 		{
 			CurrComboNode = CurrComboNode->Next;
 		}
 
-		ComboCounter++;
-
-		if (CurrComboNode != nullptr && CurrComboNode->CurrMontage != nullptr)
+		if (CurrComboNode != nullptr)
 		{
-			ACharacter::PlayAnimMontage(CurrComboNode->CurrMontage, 1.0f);
-			
-			FOnMontageEnded EndDelegate;
-	        
-			EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
-	        
-			GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+			if (Target != nullptr && GetDistanceTo(Target) < (GetCapsuleComponent()->GetScaledCapsuleRadius() * 2) + 1 && CurrComboNode->CurrMontageIP != nullptr)
+			{
+				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageIP, 0.5f);
+					
+				FOnMontageEnded EndDelegate;
+			        
+				EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
+			        
+				GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+			}
+			else if (CurrComboNode->CurrMontageM != nullptr)
+			{
+				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageM, 0.5f);
+					
+				FOnMontageEnded EndDelegate;
+			        
+				EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
+			        
+				GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+			}
 		}
 	}
 }

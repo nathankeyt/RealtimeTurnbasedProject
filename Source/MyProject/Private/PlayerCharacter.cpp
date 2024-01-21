@@ -78,6 +78,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::Jump);
 
         EnhancedInputComponent->BindAction(MainAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::MainAttackInputHandler);
+        EnhancedInputComponent->BindAction(MainAttackAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndMainAttackInputHandler);
         
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APlayerCharacter::BlockInputHandler);
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndBlockInputHandler);
@@ -130,6 +131,13 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
     
     MainAttack();
 }
+
+void APlayerCharacter::EndMainAttackInputHandler(const FInputActionValue& Value)
+{
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("attack release")));
+    MainAttackRelease();
+}
+
 
 void APlayerCharacter::BlockInputHandler(const FInputActionValue& Value)
 {
@@ -184,7 +192,8 @@ void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
             FLinearColor::Blue);
 
         if (Hit) {
-            Target = HitResult.GetActor();
+            Target = Cast<ABaseCharacter>(HitResult.GetActor());
+			
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
         }
     }

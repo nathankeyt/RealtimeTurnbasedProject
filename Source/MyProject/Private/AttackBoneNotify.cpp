@@ -8,8 +8,10 @@ void UAttackBoneNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
     ABaseCharacter* NotifiedCharacter = Cast<ABaseCharacter>(MeshComp->GetOwner());
     
     if (NotifiedCharacter != nullptr) {
+        NotifiedCharacter->SetHeavyAttack();
         NotifiedCharacter->ClearAttackBoneNames();
         NotifiedCharacter->AddAttackBoneName(BoneName);
         NotifiedCharacter->SetFistCollisionTraceRadius(TraceRadius);
+        NotifiedCharacter->MainAttackRelease();
     }
 }

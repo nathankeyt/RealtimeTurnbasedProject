@@ -84,6 +84,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	
 	void MainAttackInputHandler(const FInputActionValue& Value);
+
+	void EndMainAttackInputHandler(const FInputActionValue& Value);
 	
 	void BlockInputHandler(const FInputActionValue& Value);
 
