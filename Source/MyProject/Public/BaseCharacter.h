@@ -129,6 +129,21 @@ public:
 	bool IsAttacking;
 
 	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	bool IsAltAttacking;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	bool IsLastAltAttack;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	FVector DodgeDir;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	float DodgeTaper = 1.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	float HeavyCombatMontageSpeed = 0.5f;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
 	EAttackLevelEnum AttackLevel = EAttackLevelEnum::AE_LightAttack;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Combat)
@@ -188,6 +203,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = CombatMontages )
 	TArray<UComboNode*> CombatMontages;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = CombatMontages )
+	TArray<UComboNode*> AltCombatMontages;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	int ComboCounter;
 
@@ -228,13 +246,16 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void MainAttack();
+	void MainAttack(bool IsAltAttack = false);
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void SetHeavyAttack();
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void MainAttackRelease();
+
+	UFUNCTION(BlueprintCallable)
+	UComboNode* GetRandomComboStart();
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Block();
@@ -243,10 +264,10 @@ public:
 	void EndBlock();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Dodge();
+	void Dodge(FVector Direction);
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void PlayMainAttackMontage(int Index);
+	void PlayMainAttackMontage(const bool ShouldResetCombo);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void PlayParryMontage(int Index);
@@ -279,6 +300,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void AddAttackBoneName(FName BoneName) { AttackBoneNames.Add(BoneName); }
+	
 
 	void ClearAttackBoneNames() { AttackBoneNames.Empty(); }
 

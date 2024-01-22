@@ -79,6 +79,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
         EnhancedInputComponent->BindAction(MainAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::MainAttackInputHandler);
         EnhancedInputComponent->BindAction(MainAttackAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndMainAttackInputHandler);
+
+        EnhancedInputComponent->BindAction(AltAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AltAttackInputHandler);
+        EnhancedInputComponent->BindAction(AltAttackAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndMainAttackInputHandler);
         
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APlayerCharacter::BlockInputHandler);
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndBlockInputHandler);
@@ -129,14 +132,23 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
 {
     // SetActorRotation(FollowCamera->GetComponentRotation());
     
-    MainAttack();
+    MainAttack(false);
 }
+
+void APlayerCharacter::AltAttackInputHandler(const FInputActionValue& Value)
+{
+    // SetActorRotation(FollowCamera->GetComponentRotation());
+    
+    MainAttack(true);
+}
+
 
 void APlayerCharacter::EndMainAttackInputHandler(const FInputActionValue& Value)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("attack release")));
     MainAttackRelease();
 }
+
 
 
 void APlayerCharacter::BlockInputHandler(const FInputActionValue& Value)
@@ -153,7 +165,7 @@ void APlayerCharacter::EndBlockInputHandler(const FInputActionValue& Value)
 void APlayerCharacter::DodgeInputHandler(const FInputActionValue& Value)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("dodge press started")));
-    Dodge();
+    Dodge(FVector::Zero());
 }
 
 

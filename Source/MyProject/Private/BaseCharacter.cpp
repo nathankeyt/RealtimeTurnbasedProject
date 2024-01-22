@@ -49,8 +49,14 @@ void ABaseCharacter::Tick(float DeltaTime)
 		{
 			RecoveringCounter = 0;
 			IsRecovering = false;
-		}
+		} 
 	} */
+
+	if (IsDodging && GetMesh()->GetAnimInstance()->Montage_IsActive(nullptr) && DodgeTaper > 0.0f)
+	{
+		AddMovementInput(DodgeDir, DodgeTaper);
+		DodgeTaper -= 0.005f;
+	}
 
 	if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(nullptr))
 	{
@@ -104,8 +110,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 {
 	const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
 	const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
+	const FTransform LegTransformL = GetMesh()->GetBoneTransform("calf_l");
+	const FTransform LegTransformR = GetMesh()->GetBoneTransform("calf_r");
 	FVector DiffFromHead = HeadTransform.GetLocation() - Location;
 	FVector DiffFromRoot = RootTransform.GetLocation() - Location;
+	FVector DiffFromLeg = ((LegTransformL.GetLocation() + LegTransformR.GetLocation()) / 2) - Location;
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromHead.Length()));
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("%f"), DiffFromRoot.Length()));
@@ -149,6 +158,39 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.FrontHeadHitH != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.FrontHeadHitH);
+			}
+		}
+	}
+	else if (DiffFromLeg.Length() < DiffFromRoot.Length())
+	{
+		const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
+		DiffFromRoot.Normalize();
+		const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
+		const float SidewaysDirection = DiffFromRoot.Dot(RootRotation.GetRightVector());
+		const float ForwardDirection = DiffFromRoot.Dot(RootRotation.GetForwardVector());
+
+		if (SidewaysDirection >= 0.5f)
+		{
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.RightLegHit != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.RightLegHit);
+			}
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.RightLegHitH != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit righth")));
+				PlayAnimMontage(HitReactionMontages.RightLegHitH);
+			}
+		}
+		else
+		{
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.LeftLegHit != nullptr)
+			{
+				PlayAnimMontage(HitReactionMontages.LeftLegHit);
+			}
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.LeftLegHitH != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit lefth")));
+				PlayAnimMontage(HitReactionMontages.LeftLegHitH);
 			}
 		}
 	}
@@ -331,8 +373,10 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, EAttackLevelEnum Atta
 }
 
 
-void ABaseCharacter::MainAttack_Implementation() {
+void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 	if (Controller != nullptr && CanAct()) {
+		IsLastAltAttack = IsAltAttacking;
+		IsAltAttacking = IsAltAttack;
 		AttackLevel = EAttackLevelEnum::AE_LightAttack;
 		MainAttackIsCharging = true;
 		
@@ -380,7 +424,7 @@ void ABaseCharacter::MainAttack_Implementation() {
 
 		LastFistCollisionLocation = FVector::Zero();
 
-		PlayMainAttackMontage(FMath::RandRange(0, CombatMontages.Num() - 1));
+		PlayMainAttackMontage(IsLastAltAttack != IsAltAttacking);
 		//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
 	}  
 }
@@ -409,7 +453,7 @@ void ABaseCharacter::EndBlock_Implementation()
 	IsBlocking = false;
 }
 
-void ABaseCharacter::Dodge_Implementation()
+void ABaseCharacter::Dodge_Implementation(FVector Direction)
 {
 	if (CanAct())
 	{
@@ -454,16 +498,20 @@ void ABaseCharacter::PlayDodgeMontage_Implementation(FVector Direction)
 		        
 		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
 		
-		/*
 		FVector AccDirection = GetCharacterMovement()->GetCurrentAcceleration();
 		AccDirection.Normalize();
 		
-		MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("DodgeWarp", GetActorLocation() + (AccDirection * 300.0f)); */
+		DodgeDir = AccDirection;
+		GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+		
+		// MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("DodgeWarp", GetActorLocation() + (AccDirection * 300.0f));
 	}
 }
 
 void ABaseCharacter::OnDodgeMontageEnd(UAnimMontage* Montage_, bool interrupted_)
 {
+	UpdateMovementSpeed();
+	DodgeTaper = 1.0f;
 	IsDodging = false;
 }
 
@@ -481,14 +529,23 @@ void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 	}
 }
 
-
-
-void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
-	if (!CombatMontages.IsEmpty() && Index < CombatMontages.Num())
+UComboNode* ABaseCharacter::GetRandomComboStart()
+{
+	if (IsAltAttacking)
 	{
-		if (CurrComboNode == nullptr || CurrComboNode->Next == nullptr)
+		return AltCombatMontages[FMath::RandRange(0, AltCombatMontages.Num() - 1)];
+	}
+
+	return CombatMontages[FMath::RandRange(0, CombatMontages.Num() - 1)];
+}
+
+
+void ABaseCharacter::PlayMainAttackMontage_Implementation(const bool ShouldResetCombo) {
+	if (!CombatMontages.IsEmpty() && !AltCombatMontages.IsEmpty())
+	{
+		if (ShouldResetCombo || CurrComboNode == nullptr || CurrComboNode->Next == nullptr)
 		{
-			CurrComboNode = CombatMontages[Index];
+			CurrComboNode = GetRandomComboStart();
 		}
 		else
 		{
@@ -499,7 +556,7 @@ void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
 		{
 			if (Target != nullptr && GetDistanceTo(Target) < (GetCapsuleComponent()->GetScaledCapsuleRadius() * 2) + 1 && CurrComboNode->CurrMontageIP != nullptr)
 			{
-				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageIP, 0.5f);
+				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageIP, HeavyCombatMontageSpeed);
 					
 				FOnMontageEnded EndDelegate;
 			        
@@ -509,7 +566,7 @@ void ABaseCharacter::PlayMainAttackMontage_Implementation(int Index) {
 			}
 			else if (CurrComboNode->CurrMontageM != nullptr)
 			{
-				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageM, 0.5f);
+				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageM, HeavyCombatMontageSpeed);
 					
 				FOnMontageEnded EndDelegate;
 			        
