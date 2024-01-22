@@ -6,9 +6,11 @@
 #include "AttackLevelEnum.h"
 #include "GameFramework/Character.h"
 #include "MotionWarpingComponent.h"
+#include "Stat.h"
 #include "BaseCharacter.generated.h"
 
 
+class UWeapon;
 enum class EAttackLevelEnum : uint8;
 class UComboNode;
 class UAbilitySystemComponent;
@@ -108,19 +110,28 @@ public:
 	ABaseCharacter();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UStat* Health;
+	UStat* CurrHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UStat* Stamina;
+	UStat* MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UStat* BlockPercentage;
+	UStat* CurrStamina;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	UStat* MaxStamina;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UStat* Mana;
+	UStat* CurrMana;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	UStat* MaxMana;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* MovementSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	UWeapon* EquippedWeapon;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	TArray<FName> AttackBoneNames;
@@ -273,35 +284,36 @@ public:
 	void PlayParryMontage(int Index);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void PlayHitReactionMontage(const FVector& Location, EAttackLevelEnum AttackLevelI);
+	void PlayHitReactionMontage(const FVector& Location, const EAttackLevelEnum AttackLevelI);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayDodgeMontage(FVector Direction);
+
+	UFUNCTION(BlueprintCallable)
+	bool HasTarget();
+
+	void AddCurrHealth(const float HealthAddition);
+
+	void AddCurrStamina(const float StaminaAddition);
+
+	bool CheckIfDead() const;
+
+	void HandleDeath();
 
 	void UpdateLookAtTarget();
 
 	void IncrementParryCounter(const int MaxCounterVal);
 	
 	bool CanAct();
-
-	UFUNCTION(BlueprintCallable)
-	bool HasTarget();
 	
-	void HandleHit(const FVector& HitLocation, EAttackLevelEnum AttackLevelI);
+	void HandleHit(const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon = nullptr);
 
 	void ActivateAbility(const int AbilityIndex);
 
 	void CheckFistCollision(FName BoneName);
-	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void AddAttackBoneName(FName BoneName) { AttackBoneNames.Add(BoneName); }
 	
-
 	void ClearAttackBoneNames() { AttackBoneNames.Empty(); }
 
 	void SetCanPunch(bool CanPunch_ ) { CanPunch = CanPunch_; }
@@ -329,4 +341,10 @@ public:
 	void SetFistCollisionTraceRadius(float TraceRadius) { FistCollisionTraceRadius = TraceRadius; }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

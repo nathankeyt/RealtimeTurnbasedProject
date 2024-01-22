@@ -24,4 +24,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetData(const float Data_) { Data = Data_; }
+
+	UFUNCTION(BlueprintCallable)
+	void AddData(const float Data_) { Data += Data_; }
 };

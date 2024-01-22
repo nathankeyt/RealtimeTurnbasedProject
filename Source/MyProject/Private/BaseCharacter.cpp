@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ComboNode.h"
+#include "Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -106,7 +107,7 @@ void ABaseCharacter::OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interr
 	IsRecovering = false;
 }
 
-void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location, EAttackLevelEnum AttackLevelI)
+void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location, const EAttackLevelEnum AttackLevelI)
 {
 	const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
 	const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
@@ -317,7 +318,7 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		CurrActorsHit.Add(HitActor);
 	
 		if (ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor)) {
-			HitEnemy->HandleHit(Start, AttackLevel);
+			HitEnemy->HandleHit(Start, AttackLevel, EquippedWeapon);
 		}
 	
 		GetMesh()->GetAnimInstance()->Montage_Pause();
@@ -354,7 +355,7 @@ void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
 }
 
 
-void ABaseCharacter::HandleHit(const FVector& HitLocation, EAttackLevelEnum AttackLevelI)
+void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
 	
@@ -365,12 +366,63 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, EAttackLevelEnum Atta
 	}
 	else
 	{
+		if (Weapon != nullptr)
+		{
+			if (Weapon->GetDamage() != nullptr)
+			{
+				AddCurrHealth(Weapon->GetDamage()->GetData());
+			}
+			
+			if (Weapon->GetStaminaDamage() != nullptr)
+			{
+				AddCurrStamina(Weapon->GetStaminaDamage()->GetData());
+			}
+		}
+		
 		IsRecovering = true;
 		CanPunch = true;
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
 		PlayHitReactionMontage(HitLocation, AttackLevelI);
 	}
 }
+
+void ABaseCharacter::AddCurrHealth(const float HealthAddition)
+{
+	if (CurrHealth != nullptr)
+	{
+		CurrHealth->AddData(HealthAddition);
+	}
+	HandleDeath();
+}
+
+void ABaseCharacter::AddCurrStamina(const float StaminaAddition)
+{
+	if (CurrStamina != nullptr)
+	{
+		CurrStamina->AddData(StaminaAddition);
+	}	
+}
+
+
+void ABaseCharacter::HandleDeath()
+{
+	if (CheckIfDead())
+	{
+		Destroy();
+	}
+}
+
+bool ABaseCharacter::CheckIfDead() const
+{
+	if (CurrHealth != nullptr)
+	{
+		return CurrHealth->GetData() <= 0.0f;
+	}
+
+	return false;
+}
+
+
 
 
 void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
@@ -460,7 +512,10 @@ void ABaseCharacter::Dodge_Implementation(FVector Direction)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block started")));
 		IsDodging = true;
 
-		FVector DodgeDirection = FVector(FVector::DotProduct(GetActorForwardVector(), GetCharacterMovement()->GetCurrentAcceleration()), FVector::DotProduct(GetActorRightVector(), GetCharacterMovement()->GetCurrentAcceleration()), 0.0f);
+		FVector DodgeDirection = FVector(FVector::DotProduct(GetActorForwardVector(), GetCharacterMovement()->GetCurrentAcceleration()),
+			FVector::DotProduct(GetActorRightVector(), GetCharacterMovement()->GetCurrentAcceleration()),
+			0.0f);
+		
 		DodgeDirection.Normalize();
 		
 		PlayDodgeMontage(DodgeDirection);
