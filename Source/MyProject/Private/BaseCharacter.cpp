@@ -460,7 +460,7 @@ void ABaseCharacter::Dodge_Implementation(FVector Direction)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block started")));
 		IsDodging = true;
 
-		FVector DodgeDirection = FVector(FVector::DotProduct(GetActorForwardVector(),  GetVelocity()), FVector::DotProduct(GetActorRightVector(), GetVelocity()), 0.0f);
+		FVector DodgeDirection = FVector(FVector::DotProduct(GetActorForwardVector(), GetCharacterMovement()->GetCurrentAcceleration()), FVector::DotProduct(GetActorRightVector(), GetCharacterMovement()->GetCurrentAcceleration()), 0.0f);
 		DodgeDirection.Normalize();
 		
 		PlayDodgeMontage(DodgeDirection);
