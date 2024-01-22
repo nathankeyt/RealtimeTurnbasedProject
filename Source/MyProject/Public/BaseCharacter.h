@@ -20,6 +20,12 @@ USTRUCT(BlueprintType)
 struct FDodgeMontageStruct
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* NeutralDodge;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
+	UAnimMontage* ForwardDodge;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
 	UAnimMontage* BackDodge;
@@ -29,7 +35,6 @@ struct FDodgeMontageStruct
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=DodgeMontages)
 	UAnimMontage* LeftDodge;
-
 };
 
 USTRUCT(BlueprintType)

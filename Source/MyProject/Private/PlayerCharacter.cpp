@@ -104,7 +104,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::Move(const FInputActionValue& Value) {
     const FVector2D MovementVector = Value.Get<FVector2D>();
 
-    if (Controller != nullptr && ! IsAttacking) {
+    if (Controller != nullptr && !IsAttacking && !IsDodging) {
         const FRotator Rotation = Controller->GetControlRotation();
         const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 

@@ -415,33 +415,50 @@ void ABaseCharacter::Dodge_Implementation()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("block started")));
 		IsDodging = true;
+
+		FVector DodgeDirection = FVector(FVector::DotProduct(GetActorForwardVector(),  GetVelocity()), FVector::DotProduct(GetActorRightVector(), GetVelocity()), 0.0f);
+		DodgeDirection.Normalize();
 		
-		PlayDodgeMontage(FVector(FVector::DotProduct(GetActorForwardVector(),  GetVelocity()), FVector::DotProduct(GetActorRightVector(), GetVelocity()), 0.0f));
+		PlayDodgeMontage(DodgeDirection);
 	}
 }
 
 void ABaseCharacter::PlayDodgeMontage_Implementation(FVector Direction)
 {
-	if (DodgeMontages.BackDodge != nullptr || DodgeMontages.LeftDodge != nullptr || DodgeMontages.RightDodge != nullptr) {
-		const int RandNum = FMath::RandRange(0, 2);
-		if (RandNum == 0) //Direction.Y < 0.0f)
-		{
-			ACharacter::PlayAnimMontage(DodgeMontages.LeftDodge);
-		}
-		else if (RandNum == 1)//Direction.Y > 0.0f)
-		{
-			ACharacter::PlayAnimMontage(DodgeMontages.RightDodge);
-		}
-		else
-		{
-			ACharacter::PlayAnimMontage(DodgeMontages.BackDodge);
-		}
-	
+	// const int RandNum = FMath::RandRange(0, 2);
+	if (Direction.Y > 0.5f && DodgeMontages.LeftDodge != nullptr)
+	{
+		ACharacter::PlayAnimMontage(DodgeMontages.LeftDodge);
+	}
+	else if (Direction.Y < -0.5f && DodgeMontages.RightDodge != nullptr)
+	{
+		ACharacter::PlayAnimMontage(DodgeMontages.RightDodge);
+	}
+	else if (Direction.X < -0.5f  && DodgeMontages.BackDodge != nullptr)
+	{
+		ACharacter::PlayAnimMontage(DodgeMontages.BackDodge);
+	}
+	else if (Direction.X > 0.5f && DodgeMontages.ForwardDodge != nullptr)
+	{
+		ACharacter::PlayAnimMontage(DodgeMontages.ForwardDodge);
+	}
+	else if (DodgeMontages.NeutralDodge != nullptr)
+	{
+		ACharacter::PlayAnimMontage(DodgeMontages.NeutralDodge);
+	}
+
+	if (GetMesh()->GetAnimInstance()->Montage_IsActive(nullptr)) {
 		FOnMontageEnded EndDelegate;
 		        
 		EndDelegate.BindUObject(this, &ABaseCharacter::OnDodgeMontageEnd);
 		        
 		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+		
+		/*
+		FVector AccDirection = GetCharacterMovement()->GetCurrentAcceleration();
+		AccDirection.Normalize();
+		
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("DodgeWarp", GetActorLocation() + (AccDirection * 300.0f)); */
 	}
 }
 
