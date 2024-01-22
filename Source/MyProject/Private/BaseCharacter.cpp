@@ -7,6 +7,8 @@
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ComboNode.h"
+#include "KnockbackEnum.h"
+#include "StatWidget.h"
 #include "Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -26,6 +28,10 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UpdateHealthUI();
+
+	UpdateStaminaUI();
 
 	UpdateMovementSpeed();
 }
@@ -107,7 +113,7 @@ void ABaseCharacter::OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interr
 	IsRecovering = false;
 }
 
-void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location, const EAttackLevelEnum AttackLevelI)
+void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location, const EKnockBackEnum KnockBack)
 {
 	const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
 	const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
@@ -130,33 +136,33 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 
 		if (SidewaysDirection >= 0.25f)
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.RightHeadHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.RightHeadHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.RightHeadHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.RightHeadHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.RightHeadHitH != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.RightHeadHitH);
 			}
 		}
 		else if (SidewaysDirection <= -0.25f)
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.LeftHeadHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.LeftHeadHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.LeftHeadHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.LeftHeadHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.LeftHeadHitH != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.LeftHeadHitH);
 			}
 		}
 		else
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.FrontHeadHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.FrontHeadHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.FrontHeadHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.FrontHeadHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.FrontHeadHitH != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.FrontHeadHitH);
 			}
@@ -172,11 +178,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 
 		if (SidewaysDirection >= 0.5f)
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.RightLegHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.RightLegHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.RightLegHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.RightLegHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.RightLegHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit righth")));
 				PlayAnimMontage(HitReactionMontages.RightLegHitH);
@@ -184,11 +190,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 		}
 		else
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.LeftLegHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.LeftLegHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.LeftLegHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.LeftLegHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack  && HitReactionMontages.LeftLegHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit lefth")));
 				PlayAnimMontage(HitReactionMontages.LeftLegHitH);
@@ -205,11 +211,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 
 		if (SidewaysDirection >= 0.5f)
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.RightHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.RightHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.RightHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.RightHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack  && HitReactionMontages.RightHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit righth")));
 				PlayAnimMontage(HitReactionMontages.RightHitH);
@@ -217,11 +223,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 		}
 		else if (SidewaysDirection <= -0.5f)
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.LeftHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.LeftHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.LeftHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.LeftHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack  && HitReactionMontages.LeftHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit lefth")));
 				PlayAnimMontage(HitReactionMontages.LeftHitH);
@@ -229,11 +235,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 		}
 		else
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && HitReactionMontages.FrontHit != nullptr)
+			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.FrontHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.FrontHit);
 			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && HitReactionMontages.FrontHitH != nullptr)
+			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.FrontHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit fronth")));
 				PlayAnimMontage(HitReactionMontages.FrontHitH);
@@ -366,46 +372,71 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnu
 	}
 	else
 	{
+		IsRecovering = true;
+		CanPunch = true;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
+		
 		if (Weapon != nullptr)
 		{
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetDamage() != nullptr)
-			{
-				AddCurrHealth(Weapon->GetDamage()->GetData());
-			}
-			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && Weapon->GetHeavyDamage() != nullptr)
-			{
-				AddCurrHealth(Weapon->GetHeavyDamage()->GetData());
-			}
-			
 			if (Weapon->GetStaminaDamage() != nullptr)
 			{
 				AddCurrStamina(Weapon->GetStaminaDamage()->GetData());
 			}
+			
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetDamage() != nullptr)
+			{
+				AddCurrHealth(Weapon->GetDamage()->GetData());
+				PlayHitReactionMontage(HitLocation, Weapon->GetKnockBack());
+			}
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && Weapon->GetHeavyDamage() != nullptr)
+			{
+				AddCurrHealth(Weapon->GetHeavyDamage()->GetData());
+				PlayHitReactionMontage(HitLocation, Weapon->GetHeavyKnockBack());
+			}
 		}
-		
-		IsRecovering = true;
-		CanPunch = true;
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit valid")));
-		PlayHitReactionMontage(HitLocation, AttackLevelI);
 	}
 }
 
 void ABaseCharacter::AddCurrHealth(const float HealthAddition)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("weapon damage taken %f"), HealthAddition));
 	if (CurrHealth != nullptr)
 	{
 		CurrHealth->AddData(HealthAddition);
+
+		UpdateHealthUI();
 	}
+	
 	HandleDeath();
 }
+
+void ABaseCharacter::UpdateHealthUI()
+{
+	if (CurrHealth != nullptr && MaxHealth != nullptr && StatDisplay != nullptr)
+	{
+		StatDisplay->DisplayHealthPercentage(CurrHealth->GetData(), MaxHealth->GetData());
+	}
+}
+
 
 void ABaseCharacter::AddCurrStamina(const float StaminaAddition)
 {
 	if (CurrStamina != nullptr)
 	{
 		CurrStamina->AddData(StaminaAddition);
+
+		UpdateStaminaUI();
 	}	
 }
+
+void ABaseCharacter::UpdateStaminaUI()
+{
+	if (CurrStamina != nullptr && MaxStamina != nullptr && StatDisplay != nullptr)
+	{
+		StatDisplay->DisplayStaminaPercentage(CurrStamina->GetData(), MaxStamina->GetData());
+	}	
+}
+
 
 
 void ABaseCharacter::HandleDeath()

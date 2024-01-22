@@ -10,6 +10,8 @@
 
 #include "EnemyCharacter.generated.h"
 
+class UWidgetComponent;
+
 UCLASS()
 class MYPROJECT_API AEnemyCharacter : public ABaseCharacter
 {
@@ -18,6 +20,9 @@ class MYPROJECT_API AEnemyCharacter : public ABaseCharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UWidgetComponent* WidgetComponent;
 
 protected:
 	// Called when the game starts or when spawned

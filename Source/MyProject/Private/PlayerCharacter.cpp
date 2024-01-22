@@ -5,7 +5,6 @@
 
 #include "AbilityDisplayWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
@@ -14,6 +13,7 @@
 #include "InputActionValue.h"
 #include "Logging/LogMacros.h"
 #include "EnhancedInputComponent.h"
+#include "StatWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -57,6 +57,11 @@ APlayerCharacter::APlayerCharacter()
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
+    if (StatDisplay != nullptr)
+    {
+        StatDisplay->AddToViewport();
+    }
+    
 	Super::BeginPlay();
 
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller)) {
@@ -70,6 +75,8 @@ void APlayerCharacter::BeginPlay()
         AbilityDisplay->AddToViewport();
         AbilityDisplay->SetAbilityDisplay(AbilitySystem);
     }
+
+   
 }
 
 // Called every frame
@@ -236,3 +243,4 @@ void APlayerCharacter::Fire(const FInputActionValue& Value)
 {
     
 }
+

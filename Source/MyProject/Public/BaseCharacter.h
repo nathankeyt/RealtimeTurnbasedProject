@@ -10,6 +10,8 @@
 #include "BaseCharacter.generated.h"
 
 
+class UStatWidget;
+enum class EKnockBackEnum : uint8;
 class UWeapon;
 enum class EAttackLevelEnum : uint8;
 class UComboNode;
@@ -249,6 +251,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooting)
 	FVector2D AimOffsetRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = UI)
+	UStatWidget* StatDisplay;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -284,7 +289,7 @@ public:
 	void PlayParryMontage(int Index);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void PlayHitReactionMontage(const FVector& Location, const EAttackLevelEnum AttackLevelI);
+	void PlayHitReactionMontage(const FVector& Location, const EKnockBackEnum KnockBack);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayDodgeMontage(FVector Direction);
@@ -292,7 +297,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool HasTarget();
 
-	void AddCurrHealth(const float HealthAddition);
+	void UpdateHealthUI();
+
+	void UpdateStaminaUI();
+
+	virtual void AddCurrHealth(const float HealthAddition);
 
 	void AddCurrStamina(const float StaminaAddition);
 
