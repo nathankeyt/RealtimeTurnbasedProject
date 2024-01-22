@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+
+#include "AbilityDisplayWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/InputComponent.h"
@@ -61,6 +63,12 @@ void APlayerCharacter::BeginPlay()
         if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
             Subsystem->AddMappingContext(DefaultMappingContext, 0);
         }
+    }
+
+    if (AbilityDisplay != nullptr && AbilitySystem != nullptr)
+    {
+        AbilityDisplay->AddToViewport();
+        AbilityDisplay->SetAbilityDisplay(AbilitySystem);
     }
 }
 

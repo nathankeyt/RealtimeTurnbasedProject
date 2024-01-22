@@ -63,7 +63,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = UI)
 	UAbilityDisplayWidget* AbilityDisplay;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace")

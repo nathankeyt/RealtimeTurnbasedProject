@@ -368,9 +368,13 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnu
 	{
 		if (Weapon != nullptr)
 		{
-			if (Weapon->GetDamage() != nullptr)
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetDamage() != nullptr)
 			{
 				AddCurrHealth(Weapon->GetDamage()->GetData());
+			}
+			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && Weapon->GetHeavyDamage() != nullptr)
+			{
+				AddCurrHealth(Weapon->GetHeavyDamage()->GetData());
 			}
 			
 			if (Weapon->GetStaminaDamage() != nullptr)
