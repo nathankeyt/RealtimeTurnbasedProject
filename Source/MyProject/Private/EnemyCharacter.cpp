@@ -3,8 +3,10 @@
 
 #include "EnemyCharacter.h"
 
+#include "PlayerCharacter.h"
 #include "StatWidget.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -33,6 +35,11 @@ void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	const APlayerCharacter* Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetCharacter());
+
+	if (WidgetComponent != nullptr && Player != nullptr) {
+		WidgetComponent->SetWorldRotation(FRotator(WidgetComponent->GetComponentRotation().Pitch, UKismetMathLibrary::FindLookAtRotation(WidgetComponent->GetComponentLocation(), Player->GetActorLocation()).Yaw, WidgetComponent->GetComponentRotation().Roll));
+	} 
 	
 }
 

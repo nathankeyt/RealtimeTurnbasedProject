@@ -181,7 +181,7 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.RightLegHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.RightLegHit);
-			}
+			}c
 			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.RightLegHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit righth")));
