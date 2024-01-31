@@ -13,6 +13,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "Physics/ImmediatePhysics/ImmediatePhysicsShared/ImmediatePhysicsCore.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -113,8 +114,16 @@ void ABaseCharacter::OnHitReactionMontageEnd(UAnimMontage* Montage_, bool interr
 	IsRecovering = false;
 }
 
+/*
+float ABaseCharacter::PlayAnimMontage_Implementation(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
+{
+	Super::PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+} */
+
+
 void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Location, const EKnockBackEnum KnockBack)
 {
+	
 	const FTransform HeadTransform = GetMesh()->GetBoneTransform("head");
 	const FTransform RootTransform = GetMesh()->GetBoneTransform("pelvis");
 	const FTransform LegTransformL = GetMesh()->GetBoneTransform("calf_l");
@@ -128,6 +137,8 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 
 	if (DiffFromHead.Length() * 1.5f < DiffFromRoot.Length())
 	{
+		AttackedDir = DiffFromHead;
+		AttackedBone = "head";
 		const UE::Math::TQuat HeadRotation = HeadTransform.GetRotation();
 		DiffFromHead.Normalize();
 		const float UpwardsDirection = DiffFromHead.Dot(HeadRotation.GetUpVector());
@@ -170,6 +181,9 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 	}
 	else if (DiffFromLeg.Length() < DiffFromRoot.Length())
 	{
+		AttackedDir = DiffFromRoot;
+		AttackedBone = "pelvis";
+		
 		const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
 		DiffFromRoot.Normalize();
 		const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
@@ -181,7 +195,7 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 			if (KnockBack == EKnockBackEnum::KE_NoKnockBack && HitReactionMontages.RightLegHit != nullptr)
 			{
 				PlayAnimMontage(HitReactionMontages.RightLegHit);
-			}c
+			}
 			else if (KnockBack == EKnockBackEnum::KE_LightKnockBack && HitReactionMontages.RightLegHitH != nullptr)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit righth")));
@@ -203,6 +217,9 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 	}
 	else
 	{
+		AttackedDir = DiffFromLeg;
+		AttackedBone = "calf_l";
+		
 		const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
 		DiffFromRoot.Normalize();
 		const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
@@ -272,8 +289,20 @@ void ABaseCharacter::UpdateMovementSpeed()
 
 void ABaseCharacter::ActivateAbility(const int AbilityIndex)
 {
-	AbilitySystem->ActivateAbility(AbilityIndex, this);
+	if (AbilitySystem != nullptr)
+	{
+		AbilitySystem->ActivateAbility(AbilityIndex, this);
+	}
 }
+
+void ABaseCharacter::EndAbilityActivation(const int AbilityIndex)
+{
+	if (AbilitySystem != nullptr)
+	{
+		AbilitySystem->EndAbilityActivation(AbilityIndex);
+	}
+}
+
 
 void ABaseCharacter::AddMovementSpeedModifier(UStatModifier* StatModifier)
 {
@@ -385,13 +414,14 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnu
 			
 			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetDamage() != nullptr)
 			{
-				AddCurrHealth(Weapon->GetDamage()->GetData());
 				PlayHitReactionMontage(HitLocation, Weapon->GetKnockBack());
+				AddCurrHealth(Weapon->GetDamage()->GetData());
+				
 			}
 			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && Weapon->GetHeavyDamage() != nullptr)
 			{
-				AddCurrHealth(Weapon->GetHeavyDamage()->GetData());
 				PlayHitReactionMontage(HitLocation, Weapon->GetHeavyKnockBack());
+				AddCurrHealth(Weapon->GetHeavyDamage()->GetData());
 			}
 		}
 	}
@@ -443,9 +473,20 @@ void ABaseCharacter::HandleDeath()
 {
 	if (CheckIfDead())
 	{
-		Destroy();
+		CleanupOnDeath();
+		// Destroy();
 	}
 }
+
+void ABaseCharacter::CleanupOnDeath()
+{
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetSimulatePhysics(true);
+	GetCharacterMovement()->DisableMovement();
+	GetMesh()->AddImpulse(AttackedDir * AttackedForce, AttackedBone, true);
+}
+
 
 bool ABaseCharacter::CheckIfDead() const
 {
@@ -501,7 +542,7 @@ void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 			Target = Cast<ABaseCharacter>(HitResult.GetActor());
 			
 			// MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("AttackTarget", Target->GetTransform());
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
+			// GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
 		}
 		else
 		{

@@ -60,6 +60,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void FireInDirection(const FVector& ShootDirection);
+	void Fire(FVector Velocity, float ProjectileLifeSpan = 3.0f);
 };
 

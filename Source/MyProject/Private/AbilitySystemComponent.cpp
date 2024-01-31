@@ -37,10 +37,19 @@ void UAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, ABaseCharacter* Character)
 {
-	if (Abilities[AbilityIndex] != nullptr)
+	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num()  && Abilities[AbilityIndex] != nullptr)
 	{
 		Abilities[AbilityIndex]->Activate(Character);
 	}
 }
+
+void UAbilitySystemComponent::EndAbilityActivation_Implementation(int AbilityIndex)
+{
+	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr)
+	{
+		Abilities[AbilityIndex]->EndActivation();
+	}
+}
+
 
 

@@ -49,7 +49,7 @@ AProjectile::AProjectile()
 	if (!ProjectileMovementComponent) {
 		ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectMovementComponent"));
 		ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
-		ProjectileMovementComponent->InitialSpeed = 3000.0f;
+		ProjectileMovementComponent->InitialSpeed = 0.0f;
 		ProjectileMovementComponent->MaxSpeed = 3000.0f;
 		ProjectileMovementComponent->bRotationFollowsVelocity = true;
 		ProjectileMovementComponent->bShouldBounce = true;
@@ -91,7 +91,7 @@ AProjectile::AProjectile()
 		}
 	}
 
-	InitialLifeSpan = 3.0f;
+	InitialLifeSpan = 60.0f;
 }
 
 // Called when the game starts or when spawned
@@ -108,6 +108,8 @@ void AProjectile::Tick(float DeltaTime)
 }
 void AProjectile::SetupSpawn(UStatModifierApplicator* StatModifierApplicator_, UStaticMesh* Mesh, UMaterial* Material, UNiagaraSystem* NiagaraSystem, UParticleSystem* ParticleSystem)
 {
+	AttachToActor(GetInstigator(), FAttachmentTransformRules::KeepWorldTransform);
+	
 	if (StatModifierApplicator_ != nullptr)
 	{
 		StatModifierApplicator = StatModifierApplicator_;
@@ -137,8 +139,11 @@ void AProjectile::SetupSpawn(UStatModifierApplicator* StatModifierApplicator_, U
 }
 
 
-void AProjectile::FireInDirection(const FVector& ShootDirection) {
-	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
+void AProjectile::Fire(FVector Velocity, float ProjectileLifeSpan) {
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	
+	SetLifeSpan(ProjectileLifeSpan);
+	ProjectileMovementComponent->Velocity = Velocity;
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) {

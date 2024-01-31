@@ -148,6 +148,15 @@ public:
 	bool IsLastAltAttack;
 
 	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	FVector AttackedDir = FVector::Zero();
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	float AttackedForce = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	FName AttackedBone = "pelvis";
+
+	UPROPERTY(BlueprintReadWrite, Category = Combat)
 	FVector DodgeDir;
 
 	UPROPERTY(BlueprintReadWrite, Category = Combat)
@@ -290,6 +299,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayHitReactionMontage(const FVector& Location, const EKnockBackEnum KnockBack);
+	
+	// virtual float PlayAnimMontage(UAnimMontage* AnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None) override;
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void PlayDodgeMontage(FVector Direction);
@@ -309,6 +320,8 @@ public:
 
 	void HandleDeath();
 
+	virtual void CleanupOnDeath();
+
 	void UpdateLookAtTarget();
 
 	void IncrementParryCounter(const int MaxCounterVal);
@@ -318,6 +331,8 @@ public:
 	void HandleHit(const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon = nullptr);
 
 	void ActivateAbility(const int AbilityIndex);
+
+	void EndAbilityActivation(const int AbilityIndex);
 
 	void CheckFistCollision(FName BoneName);
 

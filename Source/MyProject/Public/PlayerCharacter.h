@@ -44,6 +44,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* SelectAbilityAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* UseAbilityAction1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* UseAbilityAction2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* UseAbilityAction3;
     
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* MainAttackAction;
@@ -100,7 +109,21 @@ protected:
 
 	void UseAbility(const FInputActionValue& Value);
 
-	void Fire(const FInputActionValue& Value);
+	void EndUseAbility(const FInputActionValue& Value);
+
+	void UseAbility1(const FInputActionValue& Value);
+
+	void EndUseAbility1(const FInputActionValue& Value);
+
+	void UseAbility2(const FInputActionValue& Value);
+
+	void EndUseAbility2(const FInputActionValue& Value);
+
+	void UseAbility3(const FInputActionValue& Value);
+
+	void EndUseAbility3(const FInputActionValue& Value);
+
+	// void Fire(const FInputActionValue& Value);
 
 public:
 	// Called every frame

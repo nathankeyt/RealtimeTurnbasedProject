@@ -2,6 +2,8 @@
 
 
 #include "BasicProjectile.h"
+
+#include "BaseCharacter.h"
 #include "ProjectileSpawner.h"
 
 UBasicProjectile::UBasicProjectile()
@@ -14,15 +16,16 @@ UBasicProjectile::UBasicProjectile()
 
 void UBasicProjectile::Activate(ABaseCharacter* Character)
 {
-    if (ProjectileSpawner != nullptr)
+    if (Character != nullptr  && ProjectileSpawner != nullptr)
     {
     	if (StatModifierApplicator != nullptr)
     	{
     		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("statmodifierapplied")));
     		ProjectileSpawner->SetStatModifierApplicator(StatModifierApplicator);
     	}
-    	
-	    ProjectileSpawner->ShootProjectile(Character);
+
+	    ProjectileSpawner->SpawnProjectile(Character);
+    	ProjectileSpawner->FireProjectile(Character->GetActorForwardVector() * 30000.0f);
     }
 }
 

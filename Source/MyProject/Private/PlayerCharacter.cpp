@@ -102,10 +102,20 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndBlockInputHandler);
 
         EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::DodgeInputHandler);
-        
-        EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
+
+        // EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
 
         EnhancedInputComponent->BindAction(SelectAbilityAction, ETriggerEvent::Started, this, &APlayerCharacter::UseAbility);
+        EnhancedInputComponent->BindAction(SelectAbilityAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndUseAbility);
+
+        EnhancedInputComponent->BindAction(UseAbilityAction1, ETriggerEvent::Started, this, &APlayerCharacter::UseAbility1);
+        EnhancedInputComponent->BindAction(UseAbilityAction1, ETriggerEvent::Completed, this, &APlayerCharacter::EndUseAbility1);
+
+        EnhancedInputComponent->BindAction(UseAbilityAction2, ETriggerEvent::Started, this, &APlayerCharacter::UseAbility2);
+        EnhancedInputComponent->BindAction(UseAbilityAction2, ETriggerEvent::Completed, this, &APlayerCharacter::EndUseAbility2);
+
+        EnhancedInputComponent->BindAction(UseAbilityAction3, ETriggerEvent::Started, this, &APlayerCharacter::UseAbility3);
+        EnhancedInputComponent->BindAction(UseAbilityAction3, ETriggerEvent::Completed, this, &APlayerCharacter::EndUseAbility3);
 
         EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &APlayerCharacter::LockOn);
 
@@ -157,14 +167,11 @@ void APlayerCharacter::AltAttackInputHandler(const FInputActionValue& Value)
     MainAttack(true);
 }
 
-
 void APlayerCharacter::EndMainAttackInputHandler(const FInputActionValue& Value)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("attack release")));
     MainAttackRelease();
 }
-
-
 
 void APlayerCharacter::BlockInputHandler(const FInputActionValue& Value)
 {
@@ -182,8 +189,6 @@ void APlayerCharacter::DodgeInputHandler(const FInputActionValue& Value)
     GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("dodge press started")));
     Dodge(FVector::Zero());
 }
-
-
 
 void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
     if (Target != nullptr) {
@@ -234,13 +239,45 @@ void APlayerCharacter::SetCameraBoomAttachment(USceneComponent* AttachComponent)
 
 void APlayerCharacter::UseAbility(const FInputActionValue& Value)
 {
-    UE_LOG(LogTemplateCharacter, Error, TEXT("'%f' Failed to find enhanced input component."), Value.Get<float>());
+    UE_LOG(LogTemplateCharacter, Error, TEXT("Start Select Ability Value: %f"), Value.Get<float>());
     
     ActivateAbility(Value.Get<float>() - 1);
 }
 
-void APlayerCharacter::Fire(const FInputActionValue& Value)
+void APlayerCharacter::EndUseAbility(const FInputActionValue& Value) {
+    UE_LOG(LogTemplateCharacter, Error, TEXT("End Select Ability Value: %f"), Value.Get<float>());
+
+    EndAbilityActivation(Value.Get<float>() - 1);
+}
+
+void APlayerCharacter::UseAbility1(const FInputActionValue& Value)
 {
-    
+    ActivateAbility(0);
+}
+
+void APlayerCharacter::EndUseAbility1(const FInputActionValue& Value)
+{
+    EndAbilityActivation(0);
+}
+
+
+void APlayerCharacter::UseAbility2(const FInputActionValue& Value)
+{
+    ActivateAbility(1);
+}
+
+void APlayerCharacter::EndUseAbility2(const FInputActionValue& Value)
+{
+    EndAbilityActivation(1);
+}
+
+void APlayerCharacter::UseAbility3(const FInputActionValue& Value)
+{
+    ActivateAbility(2);
+}
+
+void APlayerCharacter::EndUseAbility3(const FInputActionValue& Value)
+{
+    EndAbilityActivation(2);
 }
 

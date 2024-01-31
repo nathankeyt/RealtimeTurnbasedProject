@@ -2,6 +2,7 @@
 
 
 #include "ProjectileSpawner.h"
+
 #include "Kismet/KismetMathLibrary.h"
 #include "Projectile.h"
 #include "Camera/CameraComponent.h"
@@ -14,7 +15,7 @@ UProjectileSpawner::UProjectileSpawner()
 }
 
 
-void UProjectileSpawner::ShootProjectile(ABaseCharacter* Character)
+void UProjectileSpawner::SpawnProjectile(ABaseCharacter* Character)
 {
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Character);
     
@@ -28,6 +29,45 @@ void UProjectileSpawner::ShootProjectile(ABaseCharacter* Character)
         UCameraComponent* FollowCamera = PlayerCharacter->GetFollowCamera();
 
         FVector MuzzleLocation = CharacterLocation + FTransform(FollowCamera->GetComponentRotation()).TransformVector(MuzzleOffset); // try muzzleroation.vector() * muzzleoffset
+        
+        if (UWorld* World = PlayerCharacter->GetWorld()) {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("world")));
+
+            const FTransform SpawnTransform(FollowCamera->GetComponentRotation(), MuzzleLocation);
+            
+            if (AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, SpawnTransform, PlayerCharacter, PlayerCharacter->GetInstigator())) {
+                Projectile->SetupSpawn(StatModifierApplicator, Mesh, Material, NiagaraSystem, ParticleSystem);
+
+                Projectile->FinishSpawning(SpawnTransform);
+                
+                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("projectile")));
+                PlayerCharacter->PlayAnimMontage(PlayerCharacter->ShootMontage);
+                
+                CurrProjectile = Projectile;
+                /*
+                if (PlayerHUD) {
+                    PlayerHUD->SetAmmo(--Ammo);
+                }	*/
+                ActiveCharacter = PlayerCharacter;
+            }
+        }
+    }
+}
+
+void UProjectileSpawner::FireProjectile(FVector Velocity)
+{
+    CurrProjectile->Fire(Velocity, ProjectileLifeSpan);
+    ActiveCharacter = nullptr;
+}
+
+void UProjectileSpawner::FireProjectileAtLook(float Speed)
+{
+    if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
+    {
+        UCameraComponent* FollowCamera = PlayerCharacter->GetFollowCamera();
+        FVector CharacterLocation = ActiveCharacter->GetMesh()->GetBoneLocation("index_03_l");
+
+        FVector MuzzleLocation = CharacterLocation + FTransform(FollowCamera->GetComponentRotation()).TransformVector(CurrMuzzleOffset); // try muzzleroation.vector() * muzzleoffset
 
         const FVector Start = FollowCamera->GetComponentLocation();
         const FVector End = Start + (FollowCamera->GetForwardVector() * 9000.0f);
@@ -67,29 +107,10 @@ void UProjectileSpawner::ShootProjectile(ABaseCharacter* Character)
         else {
             MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
         }
-        
-        if (UWorld* World = PlayerCharacter->GetWorld()) {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("world")));
 
-            const FTransform SpawnTransform(MuzzleRotation, MuzzleLocation);
-            
-            if (AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, SpawnTransform, PlayerCharacter, PlayerCharacter->GetInstigator())) {
-                Projectile->SetupSpawn(StatModifierApplicator, Mesh, Material, NiagaraSystem, ParticleSystem);
-
-                Projectile->FinishSpawning(SpawnTransform);
-                
-                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("projectile")));
-                PlayerCharacter->PlayAnimMontage(PlayerCharacter->ShootMontage);
-
-                FVector LaunchDirection = MuzzleRotation.Vector();
-
-                Projectile->FireInDirection(LaunchDirection);
-
-                /*
-                if (PlayerHUD) {
-                    PlayerHUD->SetAmmo(--Ammo);
-                }	*/
-            }
-        }
+        FVector LaunchDirection = MuzzleRotation.Vector();
+    
+        CurrProjectile->Fire(LaunchDirection * Speed, ProjectileLifeSpan);
     }
+    ActiveCharacter = nullptr;
 }

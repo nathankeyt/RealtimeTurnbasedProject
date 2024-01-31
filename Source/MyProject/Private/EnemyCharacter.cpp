@@ -46,7 +46,16 @@ void AEnemyCharacter::Tick(float DeltaTime)
 // Called to bind functionality to input
 void AEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent (PlayerInputComponent);
 
 }
+
+void AEnemyCharacter::CleanupOnDeath()
+{
+	Super::CleanupOnDeath();
+
+	WidgetComponent->DestroyComponent();
+}
+
+
 

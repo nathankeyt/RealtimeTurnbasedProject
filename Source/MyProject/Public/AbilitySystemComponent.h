@@ -20,6 +20,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, meta = (AllowPrivateAccess = "true"))
 	TArray<UAbility*> Abilities;
+	
 
 protected:
 	// Called when the game starts
@@ -31,6 +32,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ActivateAbility(int AbilityIndex, ABaseCharacter* Character);
+
+	UFUNCTION(Server, Reliable)
+	void EndAbilityActivation(int AbilityIndex);
  
 	UFUNCTION(BlueprintCallable)
 	TArray<UAbility*> GetAbilities() const { return Abilities; }

@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "Ability.generated.h"
 
+class ABaseCharacter;
 class UStatModifierApplicator;
 
 /**
@@ -29,9 +30,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int ActivationSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	ABaseCharacter* ActiveCharacter;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Activate(ABaseCharacter* Character) PURE_VIRTUAL(UAbility::Activate(), );
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EndActivation() { };
 
 	UFUNCTION(BlueprintCallable)
 	UTexture2D* GetAbilityDisplayImage() const { return AbilityDisplayImage; }

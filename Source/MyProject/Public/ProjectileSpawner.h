@@ -23,6 +23,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<AProjectile> ProjectileClass;
 
+	UPROPERTY(BlueprintReadWrite, Category = Projectile)
+	AProjectile* CurrProjectile;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float ProjectileLifeSpan;
+
 	UPROPERTY(EditAnywhere)
 	UStaticMesh* Mesh;
 
@@ -37,10 +43,23 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStatModifierApplicator* StatModifierApplicator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	ABaseCharacter* ActiveCharacter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FVector CurrMuzzleOffset;
+
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void ShootProjectile(ABaseCharacter* Character);
+	void SpawnProjectile(ABaseCharacter* Character);
+
+	UFUNCTION(BlueprintCallable)
+	void FireProjectile(FVector Velocity);
+
+	UFUNCTION(BlueprintCallable)
+	void FireProjectileAtLook(float Speed);
 
 	UFUNCTION(BlueprintCallable)
 	void SetMesh(UStaticMesh* Mesh_) { Mesh = Mesh_; }
