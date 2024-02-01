@@ -504,9 +504,11 @@ bool ABaseCharacter::CheckIfDead() const
 
 void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 	if (Controller != nullptr && CanAct()) {
-		if (UEquipAbilityBase* Ability = AbilitySystem->GetMainEquippedAbility() != nullptr)
+		UEquipAbilityBase* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
+		
+		if (EquippedAbility != nullptr)
 		{
-			Ability->Charge();
+			EquippedAbility->Charge();
 		}
 		else
 		{
@@ -567,8 +569,17 @@ void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 
 void ABaseCharacter::MainAttackRelease_Implementation()
 {
-	MainAttackIsCharging = false;
-	GetMesh()->GetAnimInstance()->Montage_SetPlayRate(nullptr, 1.0f);
+	UEquipAbilityBase* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
+		
+	if (EquippedAbility != nullptr)
+	{
+		EquippedAbility->Fire();
+	}
+	else
+	{
+		MainAttackIsCharging = false;
+		GetMesh()->GetAnimInstance()->Montage_SetPlayRate(nullptr, 1.0f);
+	}
 }
 
 

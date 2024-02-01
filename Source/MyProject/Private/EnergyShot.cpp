@@ -26,7 +26,19 @@ bool UEnergyShot::EndActivation()
 {
 	if (ActiveCharacter != nullptr)
 	{
-		return true;
+		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
+		{
+			if (ActiveChargeEffect != nullptr)
+			{
+				ActiveChargeEffect->Deactivate();
+			}
+		
+			PlayerCharacter->SetAimOffset(false);
+			
+			ActiveCharacter = nullptr;
+
+			return true;
+		}
 	}
 
 	return false;
@@ -54,11 +66,6 @@ void UEnergyShot::Fire()
 {
 	if (ActiveCharacter != nullptr && ProjectileSpawner != nullptr)
 	{
-		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
-		{
-			PlayerCharacter->SetAimOffset(false);
-		}
-
 		if (ActiveChargeEffect != nullptr)
 		{
 			ActiveChargeEffect->Deactivate();
@@ -67,7 +74,5 @@ void UEnergyShot::Fire()
 		ProjectileSpawner->SpawnProjectile(ActiveCharacter);
 
 		ProjectileSpawner->FireProjectileAtLook(30000.0f);
-
-		ActiveCharacter = nullptr;
 	}
 }

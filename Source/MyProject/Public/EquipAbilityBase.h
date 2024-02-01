@@ -15,7 +15,7 @@ class MYPROJECT_API UEquipAbilityBase : public UAbility
 	GENERATED_BODY()
 
 public:
-	virtual void Charge();
+	virtual void Charge() {};
 
-	virtual void Fire();
+	virtual void Fire() {};
 };
