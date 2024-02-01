@@ -52,6 +52,7 @@ APlayerCharacter::APlayerCharacter()
     
     FollowCamera->bUsePawnControlRotation = false;
 
+    TargetAimOffset = FVector::Zero();
 }
 
 // Called when the game starts or when spawned
@@ -76,13 +77,35 @@ void APlayerCharacter::BeginPlay()
         AbilityDisplay->SetAbilityDisplay(AbilitySystem);
     }
 
-   
+    if (Crosshair != nullptr)
+    {
+        Crosshair->SetVisibility(ESlateVisibility::Hidden);
+        Crosshair->AddToViewport();
+    }
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    if (TargetAimOffset != CameraBoom->SocketOffset)
+    {
+        if (AimOffsetAlpha >= 0.95)
+        {
+            CameraBoom->SocketOffset = TargetAimOffset;
+
+            if (TargetAimOffset == AimOffset && Crosshair != nullptr)
+            {
+                Crosshair->SetVisibility(ESlateVisibility::Visible);
+            }
+        }
+        else
+        {
+            AimOffsetAlpha += 0.05;
+            CameraBoom->SocketOffset = FMath::Lerp(CameraBoom->SocketOffset, TargetAimOffset, AimOffsetAlpha);
+        }
+    }
 }
 
 // Called to bind functionality to input
@@ -280,4 +303,23 @@ void APlayerCharacter::EndUseAbility3(const FInputActionValue& Value)
 {
     EndAbilityActivation(2);
 }
+
+void APlayerCharacter::SetAimOffset(bool ShouldAimOffset)
+{
+    AimOffsetAlpha = 0.0f;
+    if (ShouldAimOffset)
+    {
+        TargetAimOffset = AimOffset;
+    }
+    else
+    {
+        TargetAimOffset = FVector::Zero();
+        
+        if (Crosshair != nullptr)
+        {
+            Crosshair->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+}
+
 
