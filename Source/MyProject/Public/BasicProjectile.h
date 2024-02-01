@@ -24,5 +24,5 @@ public:
 	UProjectileSpawner* ProjectileSpawner;
 
 public:
-	virtual void Activate(ABaseCharacter* Character) override;
+	virtual bool Activate(ABaseCharacter* Character) override;
 };

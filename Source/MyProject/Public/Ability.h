@@ -35,10 +35,10 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void Activate(ABaseCharacter* Character) PURE_VIRTUAL(UAbility::Activate(), );
+	virtual bool Activate(ABaseCharacter* Character) { return false; };
 
 	UFUNCTION(BlueprintCallable)
-	virtual void EndActivation() { };
+	virtual bool EndActivation() { return false; };
 
 	UFUNCTION(BlueprintCallable)
 	UTexture2D* GetAbilityDisplayImage() const { return AbilityDisplayImage; }

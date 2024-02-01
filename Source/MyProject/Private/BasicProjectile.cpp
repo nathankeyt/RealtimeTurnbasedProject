@@ -14,7 +14,7 @@ UBasicProjectile::UBasicProjectile()
 }
 
 
-void UBasicProjectile::Activate(ABaseCharacter* Character)
+bool UBasicProjectile::Activate(ABaseCharacter* Character)
 {
     if (Character != nullptr  && ProjectileSpawner != nullptr)
     {
@@ -26,6 +26,10 @@ void UBasicProjectile::Activate(ABaseCharacter* Character)
 
 	    ProjectileSpawner->SpawnProjectile(Character);
     	ProjectileSpawner->FireProjectile(Character->GetActorForwardVector() * 30000.0f);
+
+		return true;
     }
+
+	return false;
 }
 

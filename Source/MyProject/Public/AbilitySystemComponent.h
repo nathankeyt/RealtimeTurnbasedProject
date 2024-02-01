@@ -7,6 +7,7 @@
 #include "Components/ActorComponent.h"
 #include "AbilitySystemComponent.generated.h"
 
+class UEquipAbilityBase;
 class ABaseCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -20,7 +21,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, meta = (AllowPrivateAccess = "true"))
 	TArray<UAbility*> Abilities;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<bool> ActiveAbilities;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UEquipAbilityBase* MainEquippedAbility;
 
 protected:
 	// Called when the game starts
@@ -38,4 +44,7 @@ public:
  
 	UFUNCTION(BlueprintCallable)
 	TArray<UAbility*> GetAbilities() const { return Abilities; }
+	
+	UFUNCTION(BlueprintCallable)
+	UEquipAbilityBase* GetMainEquippedAbility();
 };

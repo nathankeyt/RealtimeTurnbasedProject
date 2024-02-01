@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Ability.h"
+#include "EquipAbilityBase.h"
 #include "EnergyShot.generated.h"
 
 class UNiagaraComponent;
@@ -13,7 +14,7 @@ class UNiagaraSystem;
  * 
  */
 UCLASS()
-class MYPROJECT_API UEnergyShot : public UAbility
+class MYPROJECT_API UEnergyShot : public UEquipAbilityBase
 {
 	GENERATED_BODY()
 
@@ -28,7 +29,11 @@ public:
 	UProjectileSpawner* ProjectileSpawner;
 	
 public:
-	virtual void Activate(ABaseCharacter* Character) override;
+	virtual bool Activate(ABaseCharacter* Character) override;
 
-	virtual void EndActivation() override;
+	virtual bool EndActivation() override;
+
+	virtual void Charge() override;
+
+	virtual void Fire() override;
 };

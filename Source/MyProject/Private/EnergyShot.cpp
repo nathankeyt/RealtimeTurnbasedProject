@@ -8,24 +8,39 @@
 #include "PlayerCharacter.h"
 #include "ProjectileSpawner.h"
 
-void UEnergyShot::Activate(ABaseCharacter* Character)
+bool UEnergyShot::Activate(ABaseCharacter* Character)
 {
-	if (Character != nullptr)
+	if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Character))
 	{
-		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Character))
-		{
-			PlayerCharacter->SetAimOffset(true);
-		}
-		
-		ActiveCharacter = Character;
-	
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("after class check")));
+		PlayerCharacter->SetAimOffset(true);
 
+		ActiveCharacter = Character;
+		
+		return true;
+	}
+
+	return false;
+}
+
+bool UEnergyShot::EndActivation()
+{
+	if (ActiveCharacter != nullptr)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void UEnergyShot::Charge()
+{
+	if (ActiveCharacter != nullptr)
+	{
 		FTransform BoneTransform = ActiveCharacter->GetMesh()->GetBoneTransform("index_03_l");
 
 		ActiveChargeEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(
 			ChargeEffectTemplate,
-			Character->GetMesh(),
+			ActiveCharacter->GetMesh(),
 			"index_03_l",
 			BoneTransform.GetLocation(),
 			BoneTransform.Rotator(),
@@ -34,14 +49,19 @@ void UEnergyShot::Activate(ABaseCharacter* Character)
 	}
 }
 
-void UEnergyShot::EndActivation()
+
+void UEnergyShot::Fire()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability deactivation called")));
 	if (ActiveCharacter != nullptr && ProjectileSpawner != nullptr)
 	{
 		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
 		{
 			PlayerCharacter->SetAimOffset(false);
+		}
+
+		if (ActiveChargeEffect != nullptr)
+		{
+			ActiveChargeEffect->Deactivate();
 		}
 		
 		ProjectileSpawner->SpawnProjectile(ActiveCharacter);
@@ -49,10 +69,5 @@ void UEnergyShot::EndActivation()
 		ProjectileSpawner->FireProjectileAtLook(30000.0f);
 
 		ActiveCharacter = nullptr;
-	}
-
-	if (ActiveChargeEffect != nullptr)
-	{
-		ActiveChargeEffect->Deactivate();
 	}
 }

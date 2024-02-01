@@ -2,7 +2,9 @@
 
 
 #include "AbilitySystemComponent.h"
-#include "BaseCharacter.h"
+
+#include "EquipAbilityBase.h"
+#include "NetworkMessage.h"
 
 // Sets default values for this component's properties
 UAbilitySystemComponent::UAbilitySystemComponent()
@@ -14,6 +16,8 @@ UAbilitySystemComponent::UAbilitySystemComponent()
 	SetIsReplicatedByDefault(true);
 
 	Abilities.Init(nullptr, 10);
+
+	ActiveAbilities.Init(false, 10);
 }
 
 
@@ -39,7 +43,19 @@ void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, A
 {
 	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num()  && Abilities[AbilityIndex] != nullptr)
 	{
-		Abilities[AbilityIndex]->Activate(Character);
+		ActiveAbilities[AbilityIndex] = Abilities[AbilityIndex]->Activate(Character);
+
+		UEquipAbilityBase* EquippedAbility = Cast<UEquipAbilityBase>(Abilities[AbilityIndex]);
+
+		if (ActiveAbilities[AbilityIndex] && EquippedAbility != nullptr)
+		{
+			if (MainEquippedAbility != nullptr)
+			{
+				ActiveAbilities[AbilityIndex] = !MainEquippedAbility->EndActivation();
+			}
+
+			MainEquippedAbility = EquippedAbility;
+		}
 	}
 }
 
@@ -47,8 +63,20 @@ void UAbilitySystemComponent::EndAbilityActivation_Implementation(int AbilityInd
 {
 	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr)
 	{
-		Abilities[AbilityIndex]->EndActivation();
+		ActiveAbilities[AbilityIndex] = !Abilities[AbilityIndex]->EndActivation();
+
+		UEquipAbilityBase* EquippedAbility = Cast<UEquipAbilityBase>(Abilities[AbilityIndex]);
+
+		if (!ActiveAbilities[AbilityIndex] && EquippedAbility != nullptr)
+		{
+			
+		}
 	}
+}
+
+UEquipAbilityBase* UAbilitySystemComponent::GetMainEquippedAbility()
+{
+	return MainEquippedAbility;
 }
 
 

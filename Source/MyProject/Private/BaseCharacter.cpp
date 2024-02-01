@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ComboNode.h"
+#include "EquipAbilityBase.h"
 #include "KnockbackEnum.h"
 #include "StatWidget.h"
 #include "Weapon.h"
@@ -503,57 +504,64 @@ bool ABaseCharacter::CheckIfDead() const
 
 void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 	if (Controller != nullptr && CanAct()) {
-		IsLastAltAttack = IsAltAttacking;
-		IsAltAttacking = IsAltAttack;
-		AttackLevel = EAttackLevelEnum::AE_LightAttack;
-		MainAttackIsCharging = true;
-		
-		CanPunch = false;
-		IsAttacking = true;
-		AttackBoneNames.Empty();
-		
-		const FVector Start = GetActorLocation() + (GetCapsuleComponent()->GetForwardVector() * 50);
-		const FVector End = Start;
-
-		TArray<AActor*> ActorsToIgnore;
-
-		ActorsToIgnore.Add(this);
-
-		FHitResult HitResult;
-
-		TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
-
-		TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
-
-		const bool Hit = UKismetSystemLibrary::BoxTraceSingleForObjects(
-			GetWorld(), 
-			Start, 
-			End, 
-			FVector(MainAttackTraceRadius), 
-			Controller->GetControlRotation(), 
-			TraceObjects, 
-			false, 
-			ActorsToIgnore, 
-			EDrawDebugTrace::ForDuration,
-			HitResult,
-			true);
-
-		if (Hit) {
-			Target = Cast<ABaseCharacter>(HitResult.GetActor());
-			
-			// MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("AttackTarget", Target->GetTransform());
-			// GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
+		if (UEquipAbilityBase* Ability = AbilitySystem->GetMainEquippedAbility() != nullptr)
+		{
+			Ability->Charge();
 		}
 		else
 		{
-			// MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("AttackTarget", GetActorLocation() + (GetActorForwardVector() * 100.0f));
-			// MotionWarpingComponent->RemoveWarpTarget("AttackTarget");
+			IsLastAltAttack = IsAltAttacking;
+			IsAltAttacking = IsAltAttack;
+			AttackLevel = EAttackLevelEnum::AE_LightAttack;
+			MainAttackIsCharging = true;
+			
+			CanPunch = false;
+			IsAttacking = true;
+			AttackBoneNames.Empty();
+			
+			const FVector Start = GetActorLocation() + (GetCapsuleComponent()->GetForwardVector() * 50);
+			const FVector End = Start;
+
+			TArray<AActor*> ActorsToIgnore;
+
+			ActorsToIgnore.Add(this);
+
+			FHitResult HitResult;
+
+			TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
+
+			TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+
+			const bool Hit = UKismetSystemLibrary::BoxTraceSingleForObjects(
+				GetWorld(), 
+				Start, 
+				End, 
+				FVector(MainAttackTraceRadius), 
+				Controller->GetControlRotation(), 
+				TraceObjects, 
+				false, 
+				ActorsToIgnore, 
+				EDrawDebugTrace::ForDuration,
+				HitResult,
+				true);
+
+			if (Hit) {
+				Target = Cast<ABaseCharacter>(HitResult.GetActor());
+				
+				// MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform("AttackTarget", Target->GetTransform());
+				// GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
+			}
+			else
+			{
+				// MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation("AttackTarget", GetActorLocation() + (GetActorForwardVector() * 100.0f));
+				// MotionWarpingComponent->RemoveWarpTarget("AttackTarget");
+			}
+
+			LastFistCollisionLocation = FVector::Zero();
+
+			PlayMainAttackMontage(IsLastAltAttack != IsAltAttacking);
+			//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
 		}
-
-		LastFistCollisionLocation = FVector::Zero();
-
-		PlayMainAttackMontage(IsLastAltAttack != IsAltAttacking);
-		//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
 	}  
 }
 
