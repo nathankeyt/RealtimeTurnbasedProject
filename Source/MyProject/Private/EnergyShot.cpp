@@ -10,13 +10,28 @@
 
 void UEnergyShot::Activate(ABaseCharacter* Character)
 {
-	ActiveCharacter = Character;
+	if (Character != nullptr)
+	{
+		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Character))
+		{
+			PlayerCharacter->SetAimOffset(true);
+		}
+		
+		ActiveCharacter = Character;
 	
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("after class check")));
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("after class check")));
 
-	FTransform BoneTransform = ActiveCharacter->GetMesh()->GetBoneTransform("index_03_l");
+		FTransform BoneTransform = ActiveCharacter->GetMesh()->GetBoneTransform("index_03_l");
 
-	ActiveChargeEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(ChargeEffectTemplate, Character->GetMesh(), "index_03_l", BoneTransform.GetLocation(), BoneTransform.Rotator(), EAttachLocation::KeepWorldPosition, true);
+		ActiveChargeEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			ChargeEffectTemplate,
+			Character->GetMesh(),
+			"index_03_l",
+			BoneTransform.GetLocation(),
+			BoneTransform.Rotator(),
+			EAttachLocation::KeepWorldPosition,
+			true);
+	}
 }
 
 void UEnergyShot::EndActivation()
@@ -24,6 +39,11 @@ void UEnergyShot::EndActivation()
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability deactivation called")));
 	if (ActiveCharacter != nullptr && ProjectileSpawner != nullptr)
 	{
+		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
+		{
+			PlayerCharacter->SetAimOffset(false);
+		}
+		
 		ProjectileSpawner->SpawnProjectile(ActiveCharacter);
 
 		ProjectileSpawner->FireProjectileAtLook(30000.0f);

@@ -1,11 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class UWidget;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -26,6 +25,15 @@ public:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(EditAnywhere, Category = Camera)
+	FVector AimOffset;
+
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+	FVector TargetAimOffset;
+
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+	float AimOffsetAlpha = 1.0f;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
@@ -75,11 +83,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = UI)
 	UAbilityDisplayWidget* AbilityDisplay;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = UI)
+	UUserWidget* Crosshair;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace")
 	float LockOnTraceRadius = 500.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace")
 	float LockOnTraceDistance = 500.0f;
+
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -128,6 +141,9 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	
+	void SetAimOffset(bool ShouldAimOffset);
 	
 	UFUNCTION(BlueprintCallable, Category="PlayerCamera")
 	void SetCameraBoomAttachment(USceneComponent* AttachComponent);
