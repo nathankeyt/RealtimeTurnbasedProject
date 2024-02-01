@@ -47,7 +47,7 @@ void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, A
 	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr)
 	{
 		const EAbilityActivationType AbilityActivationType = Abilities[AbilityIndex]->GetAbilityActivationType();
-
+ 
 		if (AbilityActivationType == EAbilityActivationType::AA_Toggleable && Abilities[AbilityIndex]->GetIsActive())
 		{
 			EndAbilityActivationByType(Abilities[AbilityIndex]);
@@ -100,10 +100,10 @@ void UAbilitySystemComponent::EndAbilityActivation_Implementation(int AbilityInd
 
 void UAbilitySystemComponent::EndAbilityActivationByType(UAbility* Ability)
 {
-	const EAbilityType AbilityType = Ability->GetAbilityType();
-		
 	if (Ability->EndActivation())
 	{
+		const EAbilityType AbilityType = Ability->GetAbilityType();
+		
 		if (AbilityType == EAbilityType::AT_MainEquippedAbility) {
 			MainEquippedAbility = nullptr;
 		}
