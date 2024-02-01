@@ -41,6 +41,10 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void EndAbilityActivation(int AbilityIndex);
+
+	void ActivateAbilityByType(UAbility* Ability, ABaseCharacter* Character);
+
+	void EndAbilityActivationByType(UAbility* Ability);
  
 	UFUNCTION(BlueprintCallable)
 	TArray<UAbility*> GetAbilities() const { return Abilities; }

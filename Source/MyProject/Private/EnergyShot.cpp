@@ -15,6 +15,7 @@ bool UEnergyShot::Activate(ABaseCharacter* Character)
 		PlayerCharacter->SetAimOffset(true);
 
 		ActiveCharacter = Character;
+		IsActive = true;
 		
 		return true;
 	}
@@ -36,6 +37,7 @@ bool UEnergyShot::EndActivation()
 			PlayerCharacter->SetAimOffset(false);
 			
 			ActiveCharacter = nullptr;
+			IsActive = false;
 
 			return true;
 		}

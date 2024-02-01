@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "Ability.generated.h"
 
+enum class EAbilityActivationType : uint8;
 enum class EAbilityType : uint8;
 class ABaseCharacter;
 class UStatModifierApplicator;
@@ -35,7 +36,13 @@ public:
 	EAbilityType AbilityType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	EAbilityActivationType AbilityActivationType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ABaseCharacter* ActiveCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsActive;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -45,7 +52,13 @@ public:
 	virtual bool EndActivation() { return false; };
 
 	UFUNCTION(BlueprintCallable)
-	EAbilityType GetAbilityType() const { return AbilityType; };
+	EAbilityType GetAbilityType() const { return AbilityType; }
+
+	UFUNCTION(BlueprintCallable)
+	EAbilityActivationType GetAbilityActivationType() const { return AbilityActivationType; }
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsActive() const { return IsActive; }
 	
 	UFUNCTION(BlueprintCallable)
 	UTexture2D* GetAbilityDisplayImage() const { return AbilityDisplayImage; }

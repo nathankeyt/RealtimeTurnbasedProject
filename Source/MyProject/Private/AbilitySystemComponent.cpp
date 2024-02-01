@@ -3,7 +3,9 @@
 
 #include "AbilitySystemComponent.h"
 
+#include "AbilityActivationType.h"
 #include "AbilityType.h"
+#include "BaseCharacter.h"
 #include "EquipAbilityBase.h"
 #include "NetworkMessage.h"
 
@@ -44,49 +46,70 @@ void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, A
 {
 	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr)
 	{
-		const EAbilityType AbilityType = Abilities[AbilityIndex]->GetAbilityType();
-		
-		if (AbilityType == EAbilityType::AT_MainEquippedAbility)
+		const EAbilityActivationType AbilityActivationType = Abilities[AbilityIndex]->GetAbilityActivationType();
+
+		if (AbilityActivationType == EAbilityActivationType::AA_Toggleable && Abilities[AbilityIndex]->GetIsActive())
 		{
-			if (MainEquippedAbility != nullptr) {
-				if (MainEquippedAbility->EndActivation())
-				{
-					MainEquippedAbility = nullptr;
-					if (Abilities[AbilityIndex]->Activate(Character))
-					{
-						MainEquippedAbility = Cast<UEquipAbilityBase>(Abilities[AbilityIndex]);
-					}
-				}
-			}
-			else
+			EndAbilityActivationByType(Abilities[AbilityIndex]);
+		}
+		else
+		{
+			ActivateAbilityByType(Abilities[AbilityIndex], Character);
+		}
+	}	
+}
+
+void UAbilitySystemComponent::ActivateAbilityByType(UAbility* Ability, ABaseCharacter* Character)
+{
+	const EAbilityType AbilityType = Ability->GetAbilityType();
+	
+	if (AbilityType == EAbilityType::AT_MainEquippedAbility)
+	{
+		if (MainEquippedAbility != nullptr) {
+			if (MainEquippedAbility->EndActivation())
 			{
-				if (Abilities[AbilityIndex]->Activate(Character))
+				MainEquippedAbility = nullptr;
+				if (Ability->Activate(Character))
 				{
-					MainEquippedAbility = Cast<UEquipAbilityBase>(Abilities[AbilityIndex]);
+					MainEquippedAbility = Cast<UEquipAbilityBase>(Ability);
 				}
 			}
 		}
 		else
 		{
-			Abilities[AbilityIndex]->Activate(Character);
-		}
-	}	
-}
-
-void UAbilitySystemComponent::EndAbilityActivation_Implementation(int AbilityIndex)
-{
-	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr)
-	{
-		const EAbilityType AbilityType = Abilities[AbilityIndex]->GetAbilityType();
-		
-		if (Abilities[AbilityIndex]->EndActivation())
-		{
-			if (AbilityType == EAbilityType::AT_MainEquippedAbility) {
-				MainEquippedAbility = nullptr;
+			if (Ability->Activate(Character))
+			{
+				MainEquippedAbility = Cast<UEquipAbilityBase>(Ability);
 			}
 		}
 	}
+	else
+	{
+		Ability->Activate(Character);
+	}
 }
+
+
+void UAbilitySystemComponent::EndAbilityActivation_Implementation(int AbilityIndex)
+{
+	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr && Abilities[AbilityIndex]->GetAbilityActivationType() == EAbilityActivationType::AA_HoldAndRelease)
+	{
+		EndAbilityActivationByType(Abilities[AbilityIndex]);
+	}
+}
+
+void UAbilitySystemComponent::EndAbilityActivationByType(UAbility* Ability)
+{
+	const EAbilityType AbilityType = Ability->GetAbilityType();
+		
+	if (Ability->EndActivation())
+	{
+		if (AbilityType == EAbilityType::AT_MainEquippedAbility) {
+			MainEquippedAbility = nullptr;
+		}
+	}
+}
+
 
 UEquipAbilityBase* UAbilitySystemComponent::GetMainEquippedAbility()
 {
