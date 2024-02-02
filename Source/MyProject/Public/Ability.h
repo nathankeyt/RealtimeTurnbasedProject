@@ -51,6 +51,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool EndActivation() { return false; };
 
+	virtual void UseMainAction() {};
+
+	virtual void EndMainAction() {};
+
+	virtual void UseAltAction() {};
+
+	virtual void EndAltAction() {};
+
 	UFUNCTION(BlueprintCallable)
 	EAbilityType GetAbilityType() const { return AbilityType; }
 

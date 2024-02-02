@@ -26,7 +26,7 @@ public:
 	TArray<bool> ActiveAbilities;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	UEquipAbilityBase* MainEquippedAbility;
+	UAbility* MainEquippedAbility;
 
 protected:
 	// Called when the game starts
@@ -50,5 +50,5 @@ public:
 	TArray<UAbility*> GetAbilities() const { return Abilities; }
 	
 	UFUNCTION(BlueprintCallable)
-	UEquipAbilityBase* GetMainEquippedAbility();
+	UAbility* GetMainEquippedAbility();
 };

@@ -504,11 +504,11 @@ bool ABaseCharacter::CheckIfDead() const
 
 void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 	if (Controller != nullptr && CanAct()) {
-		UEquipAbilityBase* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
+		UAbility* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
 		
 		if (EquippedAbility != nullptr)
 		{
-			EquippedAbility->Charge();
+			EquippedAbility->UseMainAction();
 		}
 		else
 		{
@@ -569,11 +569,11 @@ void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 
 void ABaseCharacter::MainAttackRelease_Implementation()
 {
-	UEquipAbilityBase* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
+	UAbility* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
 		
 	if (EquippedAbility != nullptr)
 	{
-		EquippedAbility->Fire();
+		EquippedAbility->EndMainAction();
 	}
 	else
 	{

@@ -56,7 +56,7 @@ void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, A
 		{
 			ActivateAbilityByType(Abilities[AbilityIndex], Character);
 		}
-	}	
+	}
 }
 
 void UAbilitySystemComponent::ActivateAbilityByType(UAbility* Ability, ABaseCharacter* Character)
@@ -71,7 +71,7 @@ void UAbilitySystemComponent::ActivateAbilityByType(UAbility* Ability, ABaseChar
 				MainEquippedAbility = nullptr;
 				if (Ability->Activate(Character))
 				{
-					MainEquippedAbility = Cast<UEquipAbilityBase>(Ability);
+					MainEquippedAbility = Ability;
 				}
 			}
 		}
@@ -79,7 +79,7 @@ void UAbilitySystemComponent::ActivateAbilityByType(UAbility* Ability, ABaseChar
 		{
 			if (Ability->Activate(Character))
 			{
-				MainEquippedAbility = Cast<UEquipAbilityBase>(Ability);
+				MainEquippedAbility = Ability;
 			}
 		}
 	}
@@ -111,7 +111,7 @@ void UAbilitySystemComponent::EndAbilityActivationByType(UAbility* Ability)
 }
 
 
-UEquipAbilityBase* UAbilitySystemComponent::GetMainEquippedAbility()
+UAbility* UAbilitySystemComponent::GetMainEquippedAbility()
 {
 	return MainEquippedAbility;
 }

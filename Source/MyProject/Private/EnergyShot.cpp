@@ -46,7 +46,7 @@ bool UEnergyShot::EndActivation()
 	return false;
 }
 
-void UEnergyShot::Charge()
+void UEnergyShot::UseMainAction()
 {
 	if (ActiveCharacter != nullptr)
 	{
@@ -64,7 +64,7 @@ void UEnergyShot::Charge()
 }
 
 
-void UEnergyShot::Fire()
+void UEnergyShot::EndMainAction()
 {
 	if (ActiveCharacter != nullptr && ProjectileSpawner != nullptr)
 	{
@@ -77,4 +77,15 @@ void UEnergyShot::Fire()
 
 		ProjectileSpawner->FireProjectileAtLook(30000.0f);
 	}
+}
+
+
+void UEnergyShot::UseAltAction()
+{
+	
+}
+
+void UEnergyShot::EndAltAction()
+{
+	
 }
