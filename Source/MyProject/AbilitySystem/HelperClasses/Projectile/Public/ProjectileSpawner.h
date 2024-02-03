@@ -27,7 +27,7 @@ public:
 	AProjectile* CurrProjectile;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	float ProjectileLifeSpan;
+	float ProjectileLifeSpan = 3.0f;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMesh* Mesh;
