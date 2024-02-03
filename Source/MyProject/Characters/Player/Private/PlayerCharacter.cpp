@@ -248,8 +248,6 @@ void APlayerCharacter::LockOn_Implementation(const FInputActionValue& Value) {
 
         if (Hit) {
             Target = Cast<ABaseCharacter>(HitResult.GetActor());
-			
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *Target->GetName()));
         }
     }
 }
