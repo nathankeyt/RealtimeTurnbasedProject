@@ -287,7 +287,10 @@ void ABaseCharacter::SetMovementSpeed(UStat* Stat)
 
 void ABaseCharacter::UpdateMovementSpeed()
 {
-	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed->GetData();
+	if (MovementSpeed != nullptr)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = MovementSpeed->GetData();
+	}
 }
 
 void ABaseCharacter::ActivateAbility(const int AbilityIndex)

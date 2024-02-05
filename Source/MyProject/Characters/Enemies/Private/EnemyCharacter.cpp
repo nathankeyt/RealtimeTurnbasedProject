@@ -35,12 +35,14 @@ void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	const APlayerCharacter* Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetCharacter());
+	if (const APlayerController* PlayerController = GEngine->GetFirstLocalPlayerController(GetWorld()))
+	{
+		const ACharacter* Player = PlayerController->GetCharacter();
 
-	if (WidgetComponent != nullptr && Player != nullptr) {
-		WidgetComponent->SetWorldRotation(FRotator(WidgetComponent->GetComponentRotation().Pitch, UKismetMathLibrary::FindLookAtRotation(WidgetComponent->GetComponentLocation(), Player->GetActorLocation()).Yaw, WidgetComponent->GetComponentRotation().Roll));
-	} 
-	
+		if (WidgetComponent != nullptr && Player != nullptr) {
+			WidgetComponent->SetWorldRotation(FRotator(WidgetComponent->GetComponentRotation().Pitch, UKismetMathLibrary::FindLookAtRotation(WidgetComponent->GetComponentLocation(), Player->GetActorLocation()).Yaw, WidgetComponent->GetComponentRotation().Roll));
+		} 
+	}
 }
 
 // Called to bind functionality to input
