@@ -5,54 +5,62 @@
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Math/TransformCalculus3D.h"
 #include "MyProject/Characters/Public/BaseCharacter.h"
 
 void UIKAnimInstance::UpdateFootPositions()
 {
-	for (FBoneGroup BoneGroup : BoneGroups)
+	for (FBoneGroup& BoneGroup : BoneGroups)
 	{
-		for (int i = 0; i < BoneGroup.BoneGroup.Num(); i++)
+		for (int i = 0; i < BoneGroup.Num(); i++)
 		{
-			FIKBoneNode BoneNode = BoneGroup.BoneGroup[i];
+			FIKBoneNode& BoneNode = BoneGroup.BoneGroup[i];
 			
-			FTransform NewTransform = DoFootTrace(BoneNode);
-			
-			if (!NewTransform.TranslationEquals(BoneNode.TargetTransform)) {
-				BoneNode.TargetTransform = NewTransform;
+			if (DoFootTrace(BoneNode)) {
+				SetBoneGroupShouldMove(BoneGroup);
+			}
 
-				SetLegShouldMove(BoneNode);
+			if (BoneNode.ShouldMove)
+			{
+				MoveLeg(BoneNode);
 			}
 		}
 	}
 }
 
-void UIKAnimInstance::SetLegShouldMove(FIKBoneNode BoneNode)
+void UIKAnimInstance::SetBoneGroupShouldMove(FBoneGroup& BoneGroup)
 {
-	IsMoving = true;
-	BoneNode.PrevTransform = BoneNode.ControlTransform;
-	MovingLeg = BoneNode;
+	if (!LegsToMoveCount)
+	{
+		LegsToMoveCount = BoneGroup.Num();
+
+		for (int i = 0; i < BoneGroup.Num(); i++)
+		{
+			FIKBoneNode& BoneNode = BoneGroup.BoneGroup[i];
+			BoneNode.ShouldMove = true;
+			BoneNode.PrevTransform = BoneNode.ControlTransform;
+		}
+	}
 }
 
-void UIKAnimInstance::MoveLegs()
+void UIKAnimInstance::MoveLeg(FIKBoneNode& MovingLeg)
 {
-	if (IsMoving && Character != nullptr && FootHorizontalCurve != nullptr && FootHeightCurve != nullptr)
+	if (Character != nullptr && FootHorizontalCurve != nullptr && FootHeightCurve != nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("leg alpha: %f"), MovingLeg.LegAlpha));
 		MovingLeg.LegAlpha += LegAlphaRate;
-		MovingLeg.ControlTransform = UKismetMathLibrary::TLerp(MovingLeg.PrevTransform, MovingLeg.TargetTransform, FootHorizontalCurve->GetFloatValue(MovingLeg.LegAlpha));
+		MovingLeg.ControlTransform.SetTranslation(UKismetMathLibrary::TLerp(MovingLeg.PrevTransform, MovingLeg.TargetTransform, FootHorizontalCurve->GetFloatValue(MovingLeg.LegAlpha)).GetTranslation() + (FVector::ZAxisVector * FootStepHeight * FootHeightCurve->GetFloatValue(MovingLeg.LegAlpha)));
 		
 		if (MovingLeg.LegAlpha >= 1.0f)
 		{
+			MovingLeg.ControlTransform = MovingLeg.TargetTransform;
 			MovingLeg.LegAlpha = 0.0f;
-			IsMoving = false;
+			LegsToMoveCount -= 1;
+			MovingLeg.ShouldMove = false;
 		}
 	}
 }
 
 
-
-FTransform UIKAnimInstance::DoFootTrace(FIKBoneNode BoneNode)
+bool UIKAnimInstance::DoFootTrace(FIKBoneNode& BoneNode)
 {
 	if (Character != nullptr)
 	{
@@ -76,15 +84,17 @@ FTransform UIKAnimInstance::DoFootTrace(FIKBoneNode BoneNode)
 			HitResult,
 			true);
 
-		const FVector HitLocationDiff = HitResult.Location - BoneLocation;
+		const FVector HitLocationDiff = HitResult.Location - BoneNode.ControlTransform.GetTranslation();
 
 		if (Hit && HitLocationDiff.Length() > FootDistanceThreshold)
 		{
-			return FTransform(FRotator::ZeroRotator, HitResult.Location, FVector(FootTraceRadius));
+			BoneNode.TargetTransform = FTransform(FRotator::ZeroRotator, HitResult.Location, FVector(FootTraceRadius));
+
+			return true;
 		}
 	}
 	
-	return BoneNode.TargetTransform;
+	return false;
 }
 
 

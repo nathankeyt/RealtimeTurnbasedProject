@@ -14,6 +14,8 @@ struct FIKBoneNode
 	GENERATED_BODY()
 
 public:
+	FIKBoneNode() = default;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName BoneName;
 	
@@ -28,6 +30,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float LegAlpha = 0.0f;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool ShouldMove = false;
 };
 
 USTRUCT(BlueprintType)
@@ -43,6 +48,10 @@ public:
 
 	void Add(FIKBoneNode Bone) {
 		BoneGroup.Add(Bone);
+	}
+
+	int Num() {
+		return BoneGroup.Num();
 	}
 
 	void Empty() {
@@ -63,13 +72,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> BoneNames;
+
+	UPROPERTY(BlueprintReadWrite)
+	int LegsToMoveCount = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FBoneGroup> BoneGroups;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool IsMoving;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FootDistanceThreshold;
 
@@ -80,10 +89,10 @@ public:
 	UCurveFloat* FootHeightCurve;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FootTraceDistance;
-
+	float FootStepHeight = 5.0f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FIKBoneNode MovingLeg;
+	float FootTraceDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float LegAlphaRate = 0.05;
@@ -92,17 +101,19 @@ public:
 	float FootTraceRadius = 5.0f;
 
 public:
+	
+	
 	UFUNCTION(BlueprintCallable)
-	FTransform DoFootTrace(FIKBoneNode BoneNode);
+	bool DoFootTrace(FIKBoneNode& BoneNode);
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateFootPositions();
 
 	UFUNCTION(BlueprintCallable)
-	void SetLegShouldMove(FIKBoneNode BoneNode);
+	void SetBoneGroupShouldMove(FBoneGroup& BoneGroup);
 
 	UFUNCTION(BlueprintCallable)
-	void MoveLegs();
+	void MoveLeg(FIKBoneNode& MovingLeg);
 
 	UFUNCTION(BlueprintCallable)
 	void SetCharacter(ABaseCharacter* NewCharacter) { Character = NewCharacter; }

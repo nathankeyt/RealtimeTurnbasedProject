@@ -12,7 +12,8 @@
 				"Engine",
 				"UMG",
 				"CoreUObject",
-				"UnrealEd"
+				"UnrealEd",
+				"ControlRig"
 			]
 		}
 	],
