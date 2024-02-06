@@ -45,7 +45,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// UKismetSystemLibrary::FlushPersistentDebugLines(GetWorld());
+	UKismetSystemLibrary::FlushPersistentDebugLines(GetWorld());
 
 	IncrementParryCounter(MaxParryCounter);
 
