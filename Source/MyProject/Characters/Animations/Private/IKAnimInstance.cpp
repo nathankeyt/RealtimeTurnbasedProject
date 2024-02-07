@@ -3,6 +3,7 @@
 
 #include "MyProject/Characters/Animations/Public/IKAnimInstance.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "MyProject/Characters/Public/BaseCharacter.h"
@@ -71,11 +72,13 @@ bool UIKAnimInstance::DoFootTrace(FIKBoneNode& BoneNode)
 		FHitResult HitResult;
 
 		const FVector BoneLocation = Character->GetMesh()->GetBoneLocation(BoneNode.BoneName);
+
+		
 		
 		const bool Hit = UKismetSystemLibrary::SphereTraceSingle(
 			Character->GetWorld(),
 			BoneLocation,
-			BoneLocation - (FVector::ZAxisVector * FootTraceDistance),
+			BoneLocation + (Character->GetVelocity() * 0.25f) - (FVector::ZAxisVector * FootTraceDistance),
 			FootTraceRadius,
 			TraceTypeQuery1,
 			false,
