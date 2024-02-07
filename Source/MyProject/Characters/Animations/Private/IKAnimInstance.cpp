@@ -15,8 +15,8 @@ void UIKAnimInstance::UpdateFootPositions()
 		for (int i = 0; i < BoneGroup.Num(); i++)
 		{
 			FIKBoneNode& BoneNode = BoneGroup.BoneGroup[i];
-			
-			if (DoFootTrace(BoneNode)) {
+
+			if (Character != nullptr && Character->GetVelocity().Length() > 0.0f && DoFootTrace(BoneNode)) {
 				SetBoneGroupShouldMove(BoneGroup);
 			}
 
@@ -85,7 +85,10 @@ bool UIKAnimInstance::DoFootTrace(FIKBoneNode& BoneNode)
 			IgnoreActors,
 			EDrawDebugTrace::ForDuration,
 			HitResult,
-			true);
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			0.5f);
 
 		const FVector HitLocationDiff = HitResult.Location - BoneNode.ControlTransform.GetTranslation();
 
