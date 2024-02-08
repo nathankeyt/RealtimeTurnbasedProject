@@ -38,7 +38,7 @@ void UProjectileSpawner::SpawnProjectile(ABaseCharacter* Character)
             const FTransform SpawnTransform(FollowCamera->GetComponentRotation(), MuzzleLocation);
             
             if (AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, SpawnTransform, PlayerCharacter, PlayerCharacter->GetInstigator())) {
-                Projectile->SetupSpawn(StatModifierApplicator, Mesh, Material, NiagaraSystem, ParticleSystem);
+                Projectile->SetupSpawn(Weapon, Mesh, Material, NiagaraSystem, ParticleSystem);
 
                 Projectile->FinishSpawning(SpawnTransform);
                 
@@ -92,7 +92,7 @@ void UProjectileSpawner::FireProjectileAtLook(float Speed)
             PlayerCharacter->GetWorld(),
             Start,
             End,
-            UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility),
+            UEngineTypes::ConvertToTraceType(ECC_EngineTraceChannel1),
             false,
             ActorsToIgnore,
             EDrawDebugTrace::None,

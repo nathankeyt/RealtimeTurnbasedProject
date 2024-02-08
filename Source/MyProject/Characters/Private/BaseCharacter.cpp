@@ -3,6 +3,8 @@
 
 #include "MyProject/Characters/Public/BaseCharacter.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -140,10 +142,10 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 
 	if (DiffFromHead.Length() * 1.5f < DiffFromRoot.Length())
 	{
+		DiffFromHead.Normalize();
 		AttackedDir = DiffFromHead;
 		AttackedBone = "head";
 		const UE::Math::TQuat HeadRotation = HeadTransform.GetRotation();
-		DiffFromHead.Normalize();
 		const float UpwardsDirection = DiffFromHead.Dot(HeadRotation.GetUpVector());
 		const float SidewaysDirection = DiffFromHead.Dot(HeadRotation.GetRightVector());
 		const float ForwardDirection = DiffFromHead.Dot(HeadRotation.GetForwardVector());
@@ -184,11 +186,11 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 	}
 	else if (DiffFromLeg.Length() < DiffFromRoot.Length())
 	{
+		DiffFromRoot.Normalize();
 		AttackedDir = DiffFromRoot;
 		AttackedBone = "pelvis";
 		
 		const UE::Math::TQuat RootRotation = RootTransform.GetRotation();
-		DiffFromRoot.Normalize();
 		const float UpwardsDirection = DiffFromRoot.Dot(RootRotation.GetUpVector());
 		const float SidewaysDirection = DiffFromRoot.Dot(RootRotation.GetRightVector());
 		const float ForwardDirection = DiffFromRoot.Dot(RootRotation.GetForwardVector());
@@ -220,6 +222,7 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 	}
 	else
 	{
+		DiffFromLeg.Normalize();
 		AttackedDir = DiffFromLeg;
 		AttackedBone = "calf_l";
 		
@@ -359,7 +362,7 @@ void ABaseCharacter::CheckFistCollision(FName BoneName) {
 		CurrActorsHit.Add(HitActor);
 	
 		if (ABaseCharacter* HitEnemy = Cast<ABaseCharacter>(HitActor)) {
-			HitEnemy->HandleHit(Start, AttackLevel, EquippedWeapon);
+			HitEnemy->HandleHit(Start, HitResult.ImpactPoint, AttackLevel, EquippedWeapon);
 		}
 	
 		GetMesh()->GetAnimInstance()->Montage_Pause();
@@ -396,7 +399,7 @@ void ABaseCharacter::IncrementParryCounter(const int MaxCounterVal)
 }
 
 
-void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon)
+void ABaseCharacter::HandleHit(const FVector& PreHitLocation, const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit")));
 	
@@ -413,6 +416,8 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnu
 		
 		if (Weapon != nullptr)
 		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Weapon->HitEffect, HitLocation, UKismetMathLibrary::FindLookAtRotation(HitLocation, PreHitLocation), FVector::One() * 50.0f);
+
 			if (Weapon->GetStaminaDamage() != nullptr)
 			{
 				AddCurrStamina(Weapon->GetStaminaDamage()->GetData());
@@ -420,13 +425,13 @@ void ABaseCharacter::HandleHit(const FVector& HitLocation, const EAttackLevelEnu
 			
 			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetDamage() != nullptr)
 			{
-				PlayHitReactionMontage(HitLocation, Weapon->GetKnockBack());
+				PlayHitReactionMontage(PreHitLocation, Weapon->GetKnockBack());
 				AddCurrHealth(Weapon->GetDamage()->GetData());
 				
 			}
 			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && Weapon->GetHeavyDamage() != nullptr)
 			{
-				PlayHitReactionMontage(HitLocation, Weapon->GetHeavyKnockBack());
+				PlayHitReactionMontage(PreHitLocation, Weapon->GetHeavyKnockBack());
 				AddCurrHealth(Weapon->GetHeavyDamage()->GetData());
 			}
 		}

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ProjectileSpawner.generated.h"
 
+class UWeapon;
 class ABaseCharacter;
 class UStatModifierApplicator;
 class UNiagaraSystem;
@@ -40,9 +41,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* ParticleSystem;
-
-	UPROPERTY(EditAnywhere)
-	UStatModifierApplicator* StatModifierApplicator;
+	
+	UPROPERTY(EditAnywhere, Instanced)
+	UWeapon* Weapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ABaseCharacter* ActiveCharacter;
@@ -74,5 +75,5 @@ public:
 	void SetParticleSystem(UParticleSystem* ParticleSystem_) { ParticleSystem = ParticleSystem_; }
 
 	UFUNCTION(BlueprintCallable)
-	void SetStatModifierApplicator(UStatModifierApplicator* StatModifierApplicator_) { StatModifierApplicator = StatModifierApplicator_; }
+	void SetWeapon(UWeapon* NewWeapon) { Weapon = NewWeapon; }
 };

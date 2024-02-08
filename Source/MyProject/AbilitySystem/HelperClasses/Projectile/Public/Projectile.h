@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Projectile.generated.h"
 
+class UWeapon;
 class USphereComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
@@ -44,15 +45,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Movement)
 	UProjectileMovementComponent* ProjectileMovementComponent;
-
+	
 	UPROPERTY(VisibleAnywhere, Category = Stats)
-	UStatModifierApplicator* StatModifierApplicator;
+	UWeapon* Weapon;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
-	void SetupSpawn(UStatModifierApplicator* StatModifierApplicator_ = nullptr,
+	void SetupSpawn(UWeapon* NewWeapon = nullptr,
 		UStaticMesh* Mesh = nullptr,
 		UMaterial* Material = nullptr,
 		UNiagaraSystem* NiagaraSystem  = nullptr,

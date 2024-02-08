@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "Weapon.generated.h"
 
+class UNiagaraSystem;
 enum class EKnockBackEnum : uint8;
 class UStat;
 /**
@@ -17,7 +18,6 @@ class MYPROJECT_API UWeapon : public UDataAsset
 	GENERATED_BODY()
 
 public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* Damage;
 
@@ -32,6 +32,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EKnockBackEnum HeavyKnockBackEnum = EKnockBackEnum::KE_LightKnockBack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraSystem* HitEffect;
 
 public:
 	

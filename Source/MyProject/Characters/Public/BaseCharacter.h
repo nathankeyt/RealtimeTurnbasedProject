@@ -149,7 +149,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = Combat)
 	FVector AttackedDir = FVector::Zero();
 
-	UPROPERTY(BlueprintReadWrite, Category = Combat)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	float AttackedForce = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = Combat)
@@ -327,7 +327,7 @@ public:
 	
 	bool CanAct();
 	
-	void HandleHit(const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon = nullptr);
+	void HandleHit(const FVector& PreHitLocation, const FVector& HitLocation, const EAttackLevelEnum AttackLevelI, UWeapon* Weapon = nullptr);
 
 	void ActivateAbility(const int AbilityIndex);
 

@@ -21,7 +21,6 @@ bool UBasicProjectile::Activate(ABaseCharacter* Character)
     	if (StatModifierApplicator != nullptr)
     	{
     		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("statmodifierapplied")));
-    		ProjectileSpawner->SetStatModifierApplicator(StatModifierApplicator);
     	}
 
 	    ProjectileSpawner->SpawnProjectile(Character);

@@ -11,7 +11,7 @@
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "MyProject/Characters/Enemies/Public/EnemyCharacter.h"
+#include "MyProject/Characters/Public/BaseCharacter.h"
 #include "MyProject/Stats/Public/StatModifierApplicator.h"
 
 
@@ -108,14 +108,13 @@ void AProjectile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-void AProjectile::SetupSpawn(UStatModifierApplicator* StatModifierApplicator_, UStaticMesh* Mesh, UMaterial* Material, UNiagaraSystem* NiagaraSystem, UParticleSystem* ParticleSystem)
+void AProjectile::SetupSpawn(UWeapon* NewWeapon, UStaticMesh* Mesh, UMaterial* Material, UNiagaraSystem* NiagaraSystem, UParticleSystem* ParticleSystem)
 {
 	AttachToActor(GetInstigator(), FAttachmentTransformRules::KeepWorldTransform);
 	
-	if (StatModifierApplicator_ != nullptr)
+	if (NewWeapon != nullptr)
 	{
-		StatModifierApplicator = StatModifierApplicator_;
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("stat modifier applied to projectile")));
+		Weapon = NewWeapon;
 	}
 	
 	if (Mesh != nullptr)
@@ -164,14 +163,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 		}
 		
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *OtherActor->GetName()));
-		if (AEnemyCharacter* EnemyHit = Cast<AEnemyCharacter>(OtherActor))
+		if (ABaseCharacter* EnemyHit = Cast<ABaseCharacter>(OtherActor))
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Hit %s"), *EnemyHit->GetName()));
-			if (StatModifierApplicator != nullptr)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("stat modifier not null")));
-				StatModifierApplicator->ApplyStatModifiers(EnemyHit);
-			}
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("stat modifier not null")));
+			EnemyHit->HandleHit(Hit.ImpactPoint + Hit.ImpactNormal, Hit.ImpactPoint, EAttackLevelEnum::AE_HeavyAttack, Weapon);
 		}
 	}
 
@@ -183,5 +179,5 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 	ProjectileParticleSystemComponent->Deactivate();
 
-	// Destroy();
+	Destroy();
 }
