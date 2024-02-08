@@ -92,7 +92,7 @@ void UProjectileSpawner::FireProjectileAtLook(float Speed)
             PlayerCharacter->GetWorld(),
             Start,
             End,
-            UEngineTypes::ConvertToTraceType(ECC_EngineTraceChannel1),
+            UEngineTypes::ConvertToTraceType(ECC_Pawn),
             false,
             ActorsToIgnore,
             EDrawDebugTrace::None,

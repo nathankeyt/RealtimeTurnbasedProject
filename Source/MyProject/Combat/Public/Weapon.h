@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem* HitEffect;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HitParticleSize;
+
 public:
 	
 	UStat* GetDamage() const { return Damage; }

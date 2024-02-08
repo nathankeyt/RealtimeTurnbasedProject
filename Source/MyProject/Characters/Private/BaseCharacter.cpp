@@ -47,7 +47,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// UKismetSystemLibrary::FlushPersistentDebugLines(GetWorld());
+	UKismetSystemLibrary::FlushPersistentDebugLines(GetWorld());
 
 	IncrementParryCounter(MaxParryCounter);
 
@@ -276,6 +276,8 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 		EndDelegate.BindUObject(this, &ABaseCharacter::OnHitReactionMontageEnd);
 		        
 		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
+
+		// GetMesh()->GetAnimInstance()->Montage_Pause();
 	}
 }
 
@@ -416,7 +418,7 @@ void ABaseCharacter::HandleHit(const FVector& PreHitLocation, const FVector& Hit
 		
 		if (Weapon != nullptr)
 		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Weapon->HitEffect, HitLocation, UKismetMathLibrary::FindLookAtRotation(HitLocation, PreHitLocation), FVector::One() * 50.0f);
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Weapon->HitEffect, HitLocation, UKismetMathLibrary::FindLookAtRotation(HitLocation, PreHitLocation), FVector::One() * Weapon->HitParticleSize);
 
 			if (Weapon->GetStaminaDamage() != nullptr)
 			{

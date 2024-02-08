@@ -32,7 +32,7 @@ AProjectile::AProjectile()
 	if (!CollisionComponent) {
 		CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 
-		CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
+		CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Pawn"));
 
 		if (HasAuthority())
 		{
