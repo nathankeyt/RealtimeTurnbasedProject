@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyProject/Combat/Enums/Public/KnockbackEnum.h"
 #include "Engine/DataAsset.h"
 #include "Weapon.generated.h"
 
 class UNiagaraSystem;
-enum class EKnockBackEnum : uint8;
 class UStat;
 /**
  * 
@@ -38,7 +38,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float HitParticleSize;
-
 public:
 	
 	UStat* GetDamage() const { return Damage; }

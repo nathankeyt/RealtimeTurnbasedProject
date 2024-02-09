@@ -9,6 +9,7 @@
 #include "BaseCharacter.generated.h"
 
 
+class UEquippedWeapon;
 class UAttackNode;
 class UAttackWrapperNode;
 class UStatWidget;
@@ -134,7 +135,7 @@ public:
 	UStat* MovementSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UWeapon* EquippedWeapon;
+	UEquippedWeapon* EquippedWeapon;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	TArray<FName> AttackBoneNames;
@@ -222,21 +223,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	FVector LastFistCollisionLocation = FVector::Zero();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	UComboNode* Attacks;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	int ComboCounter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	UComboNode* CurrComboNode;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	UAttackWrapperNode* CurrAttackWrapperNode;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
-	UAttackNode* CurrAttackNode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	TArray<UAnimMontage*> ParryMontages;

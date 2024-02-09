@@ -22,5 +22,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=AttackNodes)
 	UAttackNode* HeavyAttack;
-
 };

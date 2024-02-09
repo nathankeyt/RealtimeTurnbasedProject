@@ -3,7 +3,6 @@
 
 #include "MyProject/Characters/Public/BaseCharacter.h"
 
-#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -12,9 +11,7 @@
 #include "MyProject/AbilitySystem/BaseAbilities/Public/Ability.h"
 #include "MyProject/AbilitySystem/Public/AbilitySystemComponent.h"
 #include "MyProject/Combat/Enums/Public/KnockbackEnum.h"
-#include "MyProject/Combat/Public/AttackNode.h"
-#include "MyProject/Combat/Public/AttackWrapperNode.h"
-#include "MyProject/Combat/Public/ComboNode.h"
+#include "MyProject/Combat/Public/EquippedWeapon.h"
 #include "MyProject/Combat/Public/Weapon.h"
 #include "MyProject/Stats/Public/Stat.h"
 #include "MyProject/Stats/StatModifiers/Public/StatModifier.h"
@@ -36,8 +33,6 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	CurrComboNode = Attacks;
 
 	UpdateHealthUI();
 
@@ -694,59 +689,23 @@ void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 
 
 void ABaseCharacter::PlayAttackMontage_Implementation(const bool IsAltAttack) {
-	if (Attacks != nullptr)
+	if (EquippedWeapon != nullptr)
 	{
-		do
-		{
-			if (CurrComboNode == nullptr)
-			{
-				CurrComboNode = Attacks;
-			}
-		
-			if (IsAltAttack)
-			{
-				CurrAttackWrapperNode = CurrComboNode->AltAttack;
-			}
-			else
-			{
-				CurrAttackWrapperNode = CurrComboNode->MainAttack;
-			}
+		UAnimMontage* AttackMontage = EquippedWeapon->GetNextAttackMontage(
+			this,
+			IsAltAttack,
+			EAttackLevelEnum::AE_LightAttack,
+			!(Target != nullptr && GetDistanceTo(Target) < (GetCapsuleComponent()->GetScaledCapsuleRadius() * 2) + 1));
 
-			if (CurrAttackWrapperNode != nullptr && CurrAttackWrapperNode->LightAttack != nullptr)
-			{
-				CurrAttackNode = CurrAttackWrapperNode->LightAttack;
-				CurrComboNode = CurrAttackNode->Next;
-			}
-			else
-			{
-				CurrComboNode = nullptr;
-			}
-		}
-		while (CurrComboNode == nullptr);
-		
-
-		if (CurrAttackNode != nullptr)
+		if (AttackMontage != nullptr)
 		{
-			if (Target != nullptr && GetDistanceTo(Target) < (GetCapsuleComponent()->GetScaledCapsuleRadius() * 2) + 1 && CurrAttackNode->MontageIP != nullptr)
-			{
-				ACharacter::PlayAnimMontage(CurrAttackNode->MontageIP, HeavyCombatMontageSpeed);
-					
-				FOnMontageEnded EndDelegate;
+			ACharacter::PlayAnimMontage(AttackMontage, HeavyCombatMontageSpeed);
+
+			FOnMontageEnded EndDelegate;
 			        
-				EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
+			EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
 			        
-				GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
-			}
-			else if (CurrAttackNode->MontageM != nullptr)
-			{
-				ACharacter::PlayAnimMontage(CurrAttackNode->MontageM, HeavyCombatMontageSpeed);
-					
-				FOnMontageEnded EndDelegate;
-			        
-				EndDelegate.BindUObject(this, &ABaseCharacter::OnCombatMontageEnd);
-			        
-				GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
-			}
+			GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
 		}
 	}
 }
