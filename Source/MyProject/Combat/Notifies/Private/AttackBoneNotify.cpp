@@ -15,6 +15,6 @@ void UAttackBoneNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
         NotifiedCharacter->ClearAttackBoneNames();
         NotifiedCharacter->AddAttackBoneName(BoneName);
         NotifiedCharacter->SetFistCollisionTraceRadius(TraceRadius);
-        NotifiedCharacter->MainAttackRelease();
+        NotifiedCharacter->AttackRelease();
     }
 }

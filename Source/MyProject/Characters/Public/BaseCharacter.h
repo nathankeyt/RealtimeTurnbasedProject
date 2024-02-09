@@ -9,6 +9,8 @@
 #include "BaseCharacter.generated.h"
 
 
+class UAttackNode;
+class UAttackWrapperNode;
 class UStatWidget;
 enum class EKnockBackEnum : uint8;
 class UWeapon;
@@ -221,17 +223,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 	FVector LastFistCollisionLocation = FVector::Zero();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = CombatMontages )
-	TArray<UComboNode*> CombatMontages;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = CombatMontages )
-	TArray<UComboNode*> AltCombatMontages;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
+	UComboNode* Attacks;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	int ComboCounter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	UComboNode* CurrComboNode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
+	UAttackWrapperNode* CurrAttackWrapperNode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
+	UAttackNode* CurrAttackNode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	TArray<UAnimMontage*> ParryMontages;
@@ -270,16 +275,13 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void MainAttack(bool IsAltAttack = false);
+	void Attack(bool IsAltAttack = false);
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void SetHeavyAttack();
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void MainAttackRelease();
-
-	UFUNCTION(BlueprintCallable)
-	UComboNode* GetRandomComboStart();
+	void AttackRelease();
 	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Block();
@@ -291,7 +293,7 @@ public:
 	void Dodge(FVector Direction);
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void PlayMainAttackMontage(const bool ShouldResetCombo);
+	void PlayAttackMontage(const bool IsAltAttack);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void PlayParryMontage(int Index);

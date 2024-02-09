@@ -12,6 +12,8 @@
 #include "MyProject/AbilitySystem/BaseAbilities/Public/Ability.h"
 #include "MyProject/AbilitySystem/Public/AbilitySystemComponent.h"
 #include "MyProject/Combat/Enums/Public/KnockbackEnum.h"
+#include "MyProject/Combat/Public/AttackNode.h"
+#include "MyProject/Combat/Public/AttackWrapperNode.h"
 #include "MyProject/Combat/Public/ComboNode.h"
 #include "MyProject/Combat/Public/Weapon.h"
 #include "MyProject/Stats/Public/Stat.h"
@@ -34,6 +36,8 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrComboNode = Attacks;
 
 	UpdateHealthUI();
 
@@ -511,10 +515,7 @@ bool ABaseCharacter::CheckIfDead() const
 	return false;
 }
 
-
-
-
-void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
+void ABaseCharacter::Attack_Implementation(bool IsAltAttack) {
 	if (Controller != nullptr && CanAct()) {
 		UAbility* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
 		
@@ -524,8 +525,8 @@ void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 		}
 		else
 		{
-			IsLastAltAttack = IsAltAttacking;
-			IsAltAttacking = IsAltAttack;
+			// IsLastAltAttack = IsAltAttacking;
+			// IsAltAttacking = IsAltAttack;
 			AttackLevel = EAttackLevelEnum::AE_LightAttack;
 			MainAttackIsCharging = true;
 			
@@ -573,13 +574,13 @@ void ABaseCharacter::MainAttack_Implementation(bool IsAltAttack) {
 
 			LastFistCollisionLocation = FVector::Zero();
 
-			PlayMainAttackMontage(IsLastAltAttack != IsAltAttacking);
+			PlayAttackMontage(IsAltAttack);
 			//GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &AMyCharacter::OnPunchingMontageEnd);
 		}
 	}  
 }
 
-void ABaseCharacter::MainAttackRelease_Implementation()
+void ABaseCharacter::AttackRelease_Implementation()
 {
 	UAbility* EquippedAbility = AbilitySystem->GetMainEquippedAbility();
 		
@@ -691,34 +692,44 @@ void ABaseCharacter::PlayParryMontage_Implementation(int Index)
 	}
 }
 
-UComboNode* ABaseCharacter::GetRandomComboStart()
-{
-	if (IsAltAttacking)
+
+void ABaseCharacter::PlayAttackMontage_Implementation(const bool IsAltAttack) {
+	if (Attacks != nullptr)
 	{
-		return AltCombatMontages[FMath::RandRange(0, AltCombatMontages.Num() - 1)];
-	}
-
-	return CombatMontages[FMath::RandRange(0, CombatMontages.Num() - 1)];
-}
-
-
-void ABaseCharacter::PlayMainAttackMontage_Implementation(const bool ShouldResetCombo) {
-	if (!CombatMontages.IsEmpty() && !AltCombatMontages.IsEmpty())
-	{
-		if (ShouldResetCombo || CurrComboNode == nullptr || CurrComboNode->Next == nullptr)
+		do
 		{
-			CurrComboNode = GetRandomComboStart();
-		}
-		else
-		{
-			CurrComboNode = CurrComboNode->Next;
-		}
-
-		if (CurrComboNode != nullptr)
-		{
-			if (Target != nullptr && GetDistanceTo(Target) < (GetCapsuleComponent()->GetScaledCapsuleRadius() * 2) + 1 && CurrComboNode->CurrMontageIP != nullptr)
+			if (CurrComboNode == nullptr)
 			{
-				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageIP, HeavyCombatMontageSpeed);
+				CurrComboNode = Attacks;
+			}
+		
+			if (IsAltAttack)
+			{
+				CurrAttackWrapperNode = CurrComboNode->AltAttack;
+			}
+			else
+			{
+				CurrAttackWrapperNode = CurrComboNode->MainAttack;
+			}
+
+			if (CurrAttackWrapperNode != nullptr && CurrAttackWrapperNode->LightAttack != nullptr)
+			{
+				CurrAttackNode = CurrAttackWrapperNode->LightAttack;
+				CurrComboNode = CurrAttackNode->Next;
+			}
+			else
+			{
+				CurrComboNode = nullptr;
+			}
+		}
+		while (CurrComboNode == nullptr);
+		
+
+		if (CurrAttackNode != nullptr)
+		{
+			if (Target != nullptr && GetDistanceTo(Target) < (GetCapsuleComponent()->GetScaledCapsuleRadius() * 2) + 1 && CurrAttackNode->MontageIP != nullptr)
+			{
+				ACharacter::PlayAnimMontage(CurrAttackNode->MontageIP, HeavyCombatMontageSpeed);
 					
 				FOnMontageEnded EndDelegate;
 			        
@@ -726,9 +737,9 @@ void ABaseCharacter::PlayMainAttackMontage_Implementation(const bool ShouldReset
 			        
 				GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate);
 			}
-			else if (CurrComboNode->CurrMontageM != nullptr)
+			else if (CurrAttackNode->MontageM != nullptr)
 			{
-				ACharacter::PlayAnimMontage(CurrComboNode->CurrMontageM, HeavyCombatMontageSpeed);
+				ACharacter::PlayAnimMontage(CurrAttackNode->MontageM, HeavyCombatMontageSpeed);
 					
 				FOnMontageEnded EndDelegate;
 			        

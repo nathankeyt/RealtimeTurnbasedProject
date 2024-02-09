@@ -4,22 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "ComboNode.generated.h"
+#include "AttackWrapperNode.generated.h"
 
-class UAttackWrapperNode;
+class UAttackNode;
 /**
  * 
  */
 UCLASS(Blueprintable, EditInlineNew)
-class MYPROJECT_API UComboNode : public UDataAsset
+class MYPROJECT_API UAttackWrapperNode : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=AttackNodes)
-	UAttackWrapperNode* MainAttack;
+	UAttackNode* LightAttack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=AttackNodes)
-	UAttackWrapperNode* AltAttack;
+	UAttackNode* HeavyAttack;
+
 };

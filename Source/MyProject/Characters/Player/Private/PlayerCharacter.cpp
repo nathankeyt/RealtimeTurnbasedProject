@@ -180,20 +180,20 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
 {
     // SetActorRotation(FollowCamera->GetComponentRotation());
     
-    MainAttack(false);
+    Attack(false);
 }
 
 void APlayerCharacter::AltAttackInputHandler(const FInputActionValue& Value)
 {
     // SetActorRotation(FollowCamera->GetComponentRotation());
     
-    MainAttack(true);
+    Attack(true);
 }
 
 void APlayerCharacter::EndMainAttackInputHandler(const FInputActionValue& Value)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("attack release")));
-    MainAttackRelease();
+    AttackRelease();
 }
 
 void APlayerCharacter::BlockInputHandler(const FInputActionValue& Value)
