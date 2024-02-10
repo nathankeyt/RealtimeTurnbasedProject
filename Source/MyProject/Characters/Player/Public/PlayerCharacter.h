@@ -5,6 +5,7 @@
 
 #include "PlayerCharacter.generated.h"
 
+class ANPCCharacter;
 class UWidget;
 class USpringArmComponent;
 class UCameraComponent;
@@ -23,6 +24,12 @@ class MYPROJECT_API APlayerCharacter : public ABaseCharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = NPC )
+	ANPCCharacter* TargetNPC;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Scanning )
+	bool ShouldScanForNPC = false;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -93,9 +100,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace")
 	float LockOnTraceDistance = 500.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace")
+	float ScanTraceRadius = 150.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trace")
+	float ScanTraceDistance = 500.00f;
+
 	
 
 protected:
+
+	void ScanForNPC();
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -137,12 +153,15 @@ protected:
 
 	void EndUseAbility3(const FInputActionValue& Value);
 
+
+
 	// void Fire(const FInputActionValue& Value);
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetShouldScanForNPC(bool ShouldScan);
 	
 	void SetAimOffset(bool ShouldAimOffset);
 	

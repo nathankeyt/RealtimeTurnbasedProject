@@ -15,6 +15,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MyProject/AbilitySystem/UI/Public/AbilityDisplayWidget.h"
+#include "MyProject/Characters/NPCs/Public/NPCCharacter.h"
 #include "MyProject/Stats/UI/Public/StatWidget.h"
 
 
@@ -105,6 +106,11 @@ void APlayerCharacter::Tick(float DeltaTime)
             AimOffsetAlpha += 0.05;
             CameraBoom->SocketOffset = FMath::Lerp(CameraBoom->SocketOffset, TargetAimOffset, AimOffsetAlpha);
         }
+    }
+
+    if (ShouldScanForNPC)
+    {
+        ScanForNPC();
     }
 }
 
@@ -319,4 +325,63 @@ void APlayerCharacter::SetAimOffset(bool ShouldAimOffset)
         }
     }
 }
+
+void APlayerCharacter::SetShouldScanForNPC(bool ShouldScan)
+{
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("set should scan for npc")));
+    
+    if (!ShouldScan && TargetNPC != nullptr)
+    {
+        TargetNPC->GetMesh()->SetOverlayMaterial(nullptr);
+    }
+
+    ShouldScanForNPC = ShouldScan;
+}
+
+
+void APlayerCharacter::ScanForNPC()
+{
+    const FVector Start = GetActorLocation(); //  + (FollowCamera->GetForwardVector() * (GetCapsuleComponent()->GetScaledCapsuleRadius() + ScanTraceRadius)
+    const FVector End = GetActorLocation() + (FollowCamera->GetForwardVector() * ScanTraceDistance);
+
+    TArray<AActor*> ActorsToIgnore;
+
+    ActorsToIgnore.Add(this);
+
+    FHitResult HitResult;
+
+    TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
+
+    TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+
+    const bool Hit = UKismetSystemLibrary::SphereTraceSingleForObjects(
+        GetWorld(), 
+        Start, 
+        End, 
+        ScanTraceRadius,
+        TraceObjects,
+        false,
+        ActorsToIgnore,
+        EDrawDebugTrace::ForDuration,
+        HitResult,
+        true,
+        FLinearColor::Gray,
+        FLinearColor::Blue,
+        0.1f);
+
+    if (Hit) {
+        TargetNPC = Cast<ANPCCharacter>(HitResult.GetActor());
+
+        TargetNPC->GetMesh()->SetOverlayMaterial(TargetNPC->SelectedMaterial);
+    }
+    else if (TargetNPC != nullptr)
+    {
+        TargetNPC->GetMesh()->SetOverlayMaterial(nullptr);
+            
+        TargetNPC = nullptr;
+    }
+}
+
+
+
 
