@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyProject/Stats/Enums/Public/StatEnum.h"
 #include "Templates/Tuple.h"
 #include "StatModifierApplicator.generated.h"
 
+enum class EStatEnum : uint8;
 class ABaseCharacter;
 class UStatModifierTuple;
 class UStatModifier;
@@ -19,10 +21,14 @@ class MYPROJECT_API UStatModifierApplicator : public UObject
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	TArray<UStatModifierTuple*> StatModifierTuples;
+	TMap<EStatEnum, UStatModifierTuple*> StatModifierMap;
 
 public:
-	void ApplyStatModifiers(ABaseCharacter* Character);
+	void ApplyStatModifiersToCharacter(ABaseCharacter* Character);
 
-	void ApplyStatModifier(ABaseCharacter* Character, UStatModifierTuple* StatModifierTuple);
+	void ApplyStatModifierToCharacter(ABaseCharacter* Character, EStatEnum StatType, UStatModifierTuple* StatModifierTuple);
+
+	void ApplyStatModifiersToStatApplicator(UStatModifierApplicator* StatModifierApplicator);
+
+	void ApplyStatModifierToStatApplicator(UStatModifierApplicator* OtherStatModifierApplicator, EStatEnum StatType, UStatModifierTuple* StatModifierTuple);
 };

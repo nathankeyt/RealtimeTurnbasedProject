@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StatModifier.h"
 #include "Engine/DataAsset.h"
+#include "MyProject/Stats/Public/Stat.h"
 #include "StatModifierTuple.generated.h"
 
 enum class EStatEnum : uint8;
@@ -18,27 +18,34 @@ class MYPROJECT_API UStatModifierTuple : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EStatEnum StatEnum;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UStatModifier> StatModifierClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ModifierValue;
+	UStat* StatModifier;
 
 public:
-	EStatEnum GetStatEnum() const
-	{
-		return StatEnum;
-	}
 
 	TSubclassOf<UStatModifier> GetStatModifierClass() const
 	{
 		return StatModifierClass;
 	}
 
-	float GetModifierValue() const
+	UStat* GetStatModifier() const
 	{
-		return ModifierValue;
+		return StatModifier;
+	}
+
+	float GetStatModifierValue() const
+	{
+		if (StatModifier != nullptr)
+		{
+			return StatModifier->GetData();
+		}
+		return 1.0f;
+	}
+
+	void SetStatModifier(UStat* NewStatModifier)
+	{
+		StatModifier = NewStatModifier;
 	}
 };

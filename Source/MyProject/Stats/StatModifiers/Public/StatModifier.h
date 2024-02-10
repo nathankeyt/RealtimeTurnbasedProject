@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyProject/Stats/Public/Stat.h"
 #include "StatModifier.generated.h"
 
 class UStat;

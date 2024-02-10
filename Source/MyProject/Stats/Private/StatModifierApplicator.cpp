@@ -5,33 +5,62 @@
 
 #include "MyProject/Characters/Public/BaseCharacter.h"
 #include "MyProject/Stats/Enums/Public/StatEnum.h"
+#include "MyProject/Stats/StatModifiers/Public/StatModifier.h"
 #include "MyProject/Stats/StatModifiers/Public/StatModifierTuple.h"
 
-void UStatModifierApplicator::ApplyStatModifiers(ABaseCharacter* Character)
+void UStatModifierApplicator::ApplyStatModifiersToCharacter(ABaseCharacter* Character)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("apply stats called")));
-	for (UStatModifierTuple* StatModifierTuple : StatModifierTuples)
+	for (const TPair<EStatEnum, UStatModifierTuple*>& Pair : StatModifierMap)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("applying")));
-		ApplyStatModifier(Character, StatModifierTuple);
+		ApplyStatModifierToCharacter(Character, Pair.Key, Pair.Value);
 	}
 }
 
-void UStatModifierApplicator::ApplyStatModifier(ABaseCharacter* Character, UStatModifierTuple* StatModifierTuple)
+void UStatModifierApplicator::ApplyStatModifierToCharacter(ABaseCharacter* Character, EStatEnum StatType, UStatModifierTuple* StatModifierTuple)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("apply called")));
-	UClass* TypeClass = StatModifierTuple->GetStatModifierClass();
-	
-	if (UStatModifier* StatModifier = NewObject<UStatModifier>(this, StatModifierTuple->GetStatModifierClass()))
+	if (StatModifierTuple != nullptr)
 	{
-	    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Stat %f"), StatModifierTuple->GetModifierValue()));
-		StatModifier->SetModifier(StatModifierTuple->GetModifierValue());
-
-		switch (StatModifierTuple->GetStatEnum())
+		if (UStatModifier* StatModifier = NewObject<UStatModifier>(this, StatModifierTuple->GetStatModifierClass()))
 		{
-		case EStatEnum::SE_MovementSpeed:
-			Character->AddMovementSpeedModifier(StatModifier);
-			break;
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Stat %f"), StatModifierTuple->GetStatModifierValue()));
+			StatModifier->SetModifier(StatModifierTuple->GetStatModifierValue());
+
+			switch (StatType)
+			{
+			case EStatEnum::SE_MovementSpeed:
+				Character->AddMovementSpeedModifier(StatModifier);
+				break;
+			default: ;
+			}
 		}
 	}
 }
+
+void UStatModifierApplicator::ApplyStatModifiersToStatApplicator(UStatModifierApplicator* StatModifierApplicator)
+{
+	for (const TPair<EStatEnum, UStatModifierTuple*>& Pair : StatModifierMap)
+	{
+		ApplyStatModifierToStatApplicator(StatModifierApplicator, Pair.Key, Pair.Value);
+	}
+}
+
+void UStatModifierApplicator::ApplyStatModifierToStatApplicator(UStatModifierApplicator* OtherStatModifierApplicator, EStatEnum StatType, UStatModifierTuple* StatModifierTuple)
+{
+	if (StatModifierTuple != nullptr)
+	{
+		if (UStatModifier* StatModifier = NewObject<UStatModifier>(this, StatModifierTuple->GetStatModifierClass()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Stat %f"), StatModifierTuple->GetStatModifierValue()));
+			StatModifier->SetModifier(StatModifierTuple->GetStatModifierValue());
+
+			UStatModifierTuple* OtherTuple = OtherStatModifierApplicator->StatModifierMap[StatType];
+			
+			if (OtherTuple != nullptr && OtherTuple->GetStatModifier() != nullptr)
+			{
+				StatModifier->SetParentStat(OtherTuple->GetStatModifier());
+				OtherTuple->SetStatModifier(StatModifier);
+			}
+		}
+	}
+}
+
