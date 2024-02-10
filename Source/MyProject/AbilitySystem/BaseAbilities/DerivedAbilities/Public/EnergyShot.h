@@ -36,8 +36,6 @@ public:
 
 	virtual void EndMainAction() override;
 
-	virtual void UseAltAction() override;
 
-	virtual void EndAltAction() override;
 
 };

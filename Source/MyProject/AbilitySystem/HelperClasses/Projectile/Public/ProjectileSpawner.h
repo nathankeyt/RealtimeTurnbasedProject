@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Myproject/AbilitySystem/HelperClasses/Trace/Public/ThirdPersonTraceDriver.h"
 #include "ProjectileSpawner.generated.h"
 
 class UWeapon;
@@ -14,7 +15,7 @@ class AProjectile;
  * 
  */
 UCLASS(Blueprintable, EditInlineNew)
-class MYPROJECT_API UProjectileSpawner : public UObject
+class MYPROJECT_API UProjectileSpawner : public UObject, public IThirdPersonTraceDriver
 {
 	GENERATED_BODY()
 	

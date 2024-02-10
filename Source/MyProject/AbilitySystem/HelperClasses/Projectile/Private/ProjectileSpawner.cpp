@@ -3,10 +3,8 @@
 
 #include "MyProject/AbilitySystem/HelperClasses/Projectile/Public/ProjectileSpawner.h"
 
-#include "Kismet/KismetMathLibrary.h"
-
 #include "Camera/CameraComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "MyProject/AbilitySystem/HelperClasses/Projectile/Public/Projectile.h"
 #include "MyProject/Characters/Player/Public/PlayerCharacter.h"
 
@@ -66,53 +64,32 @@ void UProjectileSpawner::FireProjectileAtLook(float Speed)
 {
     if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
     {
+        FVector BoneLocation = ActiveCharacter->GetMesh()->GetBoneLocation("index_03_l");
         UCameraComponent* FollowCamera = PlayerCharacter->GetFollowCamera();
-        FVector CharacterLocation = ActiveCharacter->GetMesh()->GetBoneLocation("index_03_l");
 
-        FVector MuzzleLocation = CharacterLocation + FTransform(FollowCamera->GetComponentRotation()).TransformVector(CurrMuzzleOffset); // try muzzleroation.vector() * muzzleoffset
-
-        const FVector Start = FollowCamera->GetComponentLocation();
-        const FVector End = Start + (FollowCamera->GetForwardVector() * 9000.0f);
-
-        TArray<AActor*> ActorsToIgnore;
-        ActorsToIgnore.Add(PlayerCharacter);
-
+        FVector MuzzleLocation = BoneLocation; // FTransform(FollowCamera->GetComponentRotation()).TransformVector(FVector::Zero()); // try muzzleroation.vector() * muzzleoffset
+        
         FHitResult HitResult;
-
-        /*
-        const bool Hit = GetWorld()->LineTraceSingleByChannel(
-            HitResult,
-            Start,
-            End,
-            ECollisionChannel::ECC_Visibility,
-            QueryParams);
-        */
-
-        const bool Hit = UKismetSystemLibrary::LineTraceSingle(
-            PlayerCharacter->GetWorld(),
-            Start,
-            End,
-            UEngineTypes::ConvertToTraceType(ECC_Pawn),
-            false,
-            ActorsToIgnore,
-            EDrawDebugTrace::None,
-            HitResult,
-            true);
-
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("after get world")));
 
         FRotator MuzzleRotation;
 
-        if (Hit) {
+        float Distance = 5000.0f;
+
+        if (DoFollowCameraTrace(HitResult, PlayerCharacter, Distance))
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("projectile trace hit")));
             MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, HitResult.Location);
         }
-        else {
-            MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
+        else
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("projectile trace not hit")));
+            MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, MuzzleLocation + FollowCamera->GetForwardVector() * 9000.0f);
         }
 
-        FVector LaunchDirection = MuzzleRotation.Vector();
-    
+        const FVector LaunchDirection = MuzzleRotation.Vector();
+        
         CurrProjectile->Fire(LaunchDirection * Speed, ProjectileLifeSpan);
     }
+    
     ActiveCharacter = nullptr;
 }

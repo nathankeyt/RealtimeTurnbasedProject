@@ -79,14 +79,3 @@ void UEnergyShot::EndMainAction()
 		ProjectileSpawner->FireProjectileAtLook(30000.0f);
 	}
 }
-
-
-void UEnergyShot::UseAltAction()
-{
-	
-}
-
-void UEnergyShot::EndAltAction()
-{
-	
-}
