@@ -283,29 +283,24 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 
 UStat* ABaseCharacter::GetMovementSpeed()
 {
-	if (StatMap.Contains(EStatEnum::SE_MovementSpeed))
-	{
-		return StatMap[EStatEnum::SE_MovementSpeed];
-	}
-	
-	return nullptr;
+	return StatMap.FindOrAdd(EStatEnum::SE_MovementSpeed);
 }
 
 
 void ABaseCharacter::SetMovementSpeed(UStat* Stat)
 {
-	if (Stat != nullptr)
+	if (const UStat* MovementSpeed = StatMap.FindOrAdd(EStatEnum::SE_MovementSpeed))
 	{
-		StatMap.FindOrAdd(EStatEnum::SE_MovementSpeed) = Stat;
+		MovementSpeed = Stat;
 		UpdateMovementSpeed();
 	}
 }
 
 void ABaseCharacter::UpdateMovementSpeed()
 {
-	if (StatMap.Contains(EStatEnum::SE_MovementSpeed))
+	if (const UStat* MovementSpeed = StatMap.FindOrAdd(EStatEnum::SE_MovementSpeed))
 	{
-		GetCharacterMovement()->MaxWalkSpeed = StatMap[EStatEnum::SE_MovementSpeed]->GetData();
+		GetCharacterMovement()->MaxWalkSpeed = MovementSpeed->GetData();
 	}
 }
 
@@ -330,9 +325,11 @@ void ABaseCharacter::EndAbilityActivation(const int AbilityIndex)
 
 void ABaseCharacter::AddMovementSpeedModifier(UStatModifier* StatModifier)
 {
-	if (StatModifier != nullptr && StatMap.Contains(EStatEnum::SE_MovementSpeed))
+	UStat* MovementSpeed = StatMap.FindOrAdd(EStatEnum::SE_MovementSpeed);
+	
+	if (StatModifier != nullptr && MovementSpeed != nullptr)
 	{
-		StatModifier->SetParentStat(StatMap[EStatEnum::SE_MovementSpeed]);
+		StatModifier->SetParentStat(MovementSpeed);
 		SetMovementSpeed(StatModifier);
 	}
 }
@@ -456,9 +453,12 @@ void ABaseCharacter::HandleHit(const FVector& PreHitLocation, const FVector& Hit
 void ABaseCharacter::AddCurrHealth(const float HealthAddition)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("weapon damage taken %f"), HealthAddition));
-	if (StatMap.Contains(EStatEnum::SE_Health))
+	UStat* Health = StatMap.FindOrAdd(EStatEnum::SE_Health);
+	const UStat* MaxHealth = StatMap.FindOrAdd(EStatEnum::SE_MaxHealth);
+	
+	if (Health != nullptr && MaxHealth != nullptr && Health->GetData() + HealthAddition <= MaxHealth->GetData())
 	{
-		StatMap[EStatEnum::SE_Health]->AddData(HealthAddition);
+		Health->AddData(HealthAddition);
 
 		UpdateHealthUI();
 	}
@@ -468,18 +468,24 @@ void ABaseCharacter::AddCurrHealth(const float HealthAddition)
 
 void ABaseCharacter::UpdateHealthUI()
 {
-	if (StatMap.Contains(EStatEnum::SE_Health) && StatMap.Contains(EStatEnum::SE_MaxHealth) && StatDisplay != nullptr)
+	const UStat* Health = StatMap.FindOrAdd(EStatEnum::SE_Health);
+	const UStat* MaxHealth = StatMap.FindOrAdd(EStatEnum::SE_MaxHealth);
+	
+	if (Health != nullptr && MaxHealth != nullptr && StatDisplay != nullptr)
 	{
-		StatDisplay->DisplayHealthPercentage(StatMap[EStatEnum::SE_Health]->GetData(), StatMap[EStatEnum::SE_MaxHealth]->GetData());
+		StatDisplay->DisplayHealthPercentage(Health->GetData(), MaxHealth->GetData());
 	}
 }
 
 
 void ABaseCharacter::AddCurrStamina(const float StaminaAddition)
 {
-	if (StatMap.Contains(EStatEnum::SE_Stamina))
+	UStat* Stamina = StatMap.FindOrAdd(EStatEnum::SE_Stamina);
+	const UStat* MaxStamina = StatMap.FindOrAdd(EStatEnum::SE_MaxStamina);
+	
+	if (Stamina  != nullptr && MaxStamina != nullptr && Stamina->GetData() + StaminaAddition <= MaxStamina->GetData())
 	{
-		StatMap[EStatEnum::SE_Stamina]->AddData(StaminaAddition);
+		Stamina->AddData(StaminaAddition);
 
 		UpdateStaminaUI();
 	}	
@@ -487,9 +493,12 @@ void ABaseCharacter::AddCurrStamina(const float StaminaAddition)
 
 void ABaseCharacter::UpdateStaminaUI()
 {
-	if (StatMap.Contains(EStatEnum::SE_Stamina) && StatMap.Contains(EStatEnum::SE_MaxStamina) && StatDisplay != nullptr)
+	const UStat* Stamina = StatMap.FindOrAdd(EStatEnum::SE_Stamina);
+	const UStat* MaxStamina = StatMap.FindOrAdd(EStatEnum::SE_MaxStamina);
+	
+	if (Stamina  != nullptr && MaxStamina != nullptr && StatDisplay != nullptr)
 	{
-		StatDisplay->DisplayStaminaPercentage(StatMap[EStatEnum::SE_Stamina]->GetData(), StatMap[EStatEnum::SE_MaxStamina]->GetData());
+		StatDisplay->DisplayStaminaPercentage(Stamina->GetData(), MaxStamina->GetData());
 	}	
 }
 
@@ -514,11 +523,11 @@ void ABaseCharacter::CleanupOnDeath()
 }
 
 
-bool ABaseCharacter::CheckIfDead() const
+bool ABaseCharacter::CheckIfDead()
 {
-	if (StatMap.Contains(EStatEnum::SE_Health))
+	if (const UStat* Health = StatMap.FindOrAdd(EStatEnum::SE_Health))
 	{
-		return StatMap[EStatEnum::SE_Health]->GetData() <= 0.0f;
+		return Health->GetData() <= 0.0f;
 	}
 
 	return false;

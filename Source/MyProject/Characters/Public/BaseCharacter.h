@@ -309,7 +309,7 @@ public:
 
 	void AddCurrStamina(const float StaminaAddition);
 
-	bool CheckIfDead() const;
+	bool CheckIfDead();
 
 	void HandleDeath();
 
