@@ -12,7 +12,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "MyProject/Characters/Public/BaseCharacter.h"
-#include "MyProject/Stats/Public/StatModifierApplicator.h"
 
 
 // Sets default values

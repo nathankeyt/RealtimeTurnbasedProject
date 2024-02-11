@@ -9,6 +9,7 @@
 
 enum class EStatEnum : uint8;
 class ABaseCharacter;
+class UStat;
 class UStatModifierTuple;
 class UStatModifier;
 /**
@@ -24,6 +25,11 @@ public:
 	TMap<EStatEnum, UStatModifierTuple*> StatModifierMap;
 
 public:
+	void ApplyStatModifiers(TMap<EStatEnum, UStat*>& StatMap);
+
+	void ApplyStatModifier(TMap<EStatEnum, UStat*>& StatMap, EStatEnum StatType, UStatModifierTuple* StatModifierTuple);
+
+	/*
 	void ApplyStatModifiersToCharacter(ABaseCharacter* Character);
 
 	void ApplyStatModifierToCharacter(ABaseCharacter* Character, EStatEnum StatType, UStatModifierTuple* StatModifierTuple);
@@ -31,4 +37,6 @@ public:
 	void ApplyStatModifiersToStatApplicator(UStatModifierApplicator* StatModifierApplicator);
 
 	void ApplyStatModifierToStatApplicator(UStatModifierApplicator* OtherStatModifierApplicator, EStatEnum StatType, UStatModifierTuple* StatModifierTuple);
+	*/
+	
 };

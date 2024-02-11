@@ -17,6 +17,7 @@
 #include "MyProject/Stats/StatModifiers/Public/StatModifier.h"
 #include "MyProject/Stats/UI/Public/StatWidget.h"
 #include "Net/UnrealNetwork.h"
+#include "MyProject/Stats/Enums/Public/StatEnum.h"
 
 
 // Sets default values
@@ -280,22 +281,35 @@ void ABaseCharacter::PlayHitReactionMontage_Implementation(const FVector& Locati
 	}
 }
 
+UStat* ABaseCharacter::GetMovementSpeed()
+{
+	if (StatMap.Contains(EStatEnum::SE_MovementSpeed))
+	{
+		return StatMap[EStatEnum::SE_MovementSpeed];
+	}
+	
+	return nullptr;
+}
+
+
 void ABaseCharacter::SetMovementSpeed(UStat* Stat)
 {
 	if (Stat != nullptr)
 	{
-		MovementSpeed = Stat;
+		StatMap.FindOrAdd(EStatEnum::SE_MovementSpeed) = Stat;
 		UpdateMovementSpeed();
 	}
 }
 
 void ABaseCharacter::UpdateMovementSpeed()
 {
-	if (MovementSpeed != nullptr)
+	if (StatMap.Contains(EStatEnum::SE_MovementSpeed))
 	{
-		GetCharacterMovement()->MaxWalkSpeed = MovementSpeed->GetData();
+		GetCharacterMovement()->MaxWalkSpeed = StatMap[EStatEnum::SE_MovementSpeed]->GetData();
 	}
 }
+
+
 
 void ABaseCharacter::ActivateAbility(const int AbilityIndex)
 {
@@ -316,9 +330,9 @@ void ABaseCharacter::EndAbilityActivation(const int AbilityIndex)
 
 void ABaseCharacter::AddMovementSpeedModifier(UStatModifier* StatModifier)
 {
-	if (StatModifier != nullptr && MovementSpeed != nullptr)
+	if (StatModifier != nullptr && StatMap.Contains(EStatEnum::SE_MovementSpeed))
 	{
-		StatModifier->SetParentStat(MovementSpeed);
+		StatModifier->SetParentStat(StatMap[EStatEnum::SE_MovementSpeed]);
 		SetMovementSpeed(StatModifier);
 	}
 }
@@ -442,9 +456,9 @@ void ABaseCharacter::HandleHit(const FVector& PreHitLocation, const FVector& Hit
 void ABaseCharacter::AddCurrHealth(const float HealthAddition)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("weapon damage taken %f"), HealthAddition));
-	if (CurrHealth != nullptr)
+	if (StatMap.Contains(EStatEnum::SE_Health))
 	{
-		CurrHealth->AddData(HealthAddition);
+		StatMap[EStatEnum::SE_Health]->AddData(HealthAddition);
 
 		UpdateHealthUI();
 	}
@@ -454,18 +468,18 @@ void ABaseCharacter::AddCurrHealth(const float HealthAddition)
 
 void ABaseCharacter::UpdateHealthUI()
 {
-	if (CurrHealth != nullptr && MaxHealth != nullptr && StatDisplay != nullptr)
+	if (StatMap.Contains(EStatEnum::SE_Health) && StatMap.Contains(EStatEnum::SE_MaxHealth) && StatDisplay != nullptr)
 	{
-		StatDisplay->DisplayHealthPercentage(CurrHealth->GetData(), MaxHealth->GetData());
+		StatDisplay->DisplayHealthPercentage(StatMap[EStatEnum::SE_Health]->GetData(), StatMap[EStatEnum::SE_MaxHealth]->GetData());
 	}
 }
 
 
 void ABaseCharacter::AddCurrStamina(const float StaminaAddition)
 {
-	if (CurrStamina != nullptr)
+	if (StatMap.Contains(EStatEnum::SE_Stamina))
 	{
-		CurrStamina->AddData(StaminaAddition);
+		StatMap[EStatEnum::SE_Stamina]->AddData(StaminaAddition);
 
 		UpdateStaminaUI();
 	}	
@@ -473,9 +487,9 @@ void ABaseCharacter::AddCurrStamina(const float StaminaAddition)
 
 void ABaseCharacter::UpdateStaminaUI()
 {
-	if (CurrStamina != nullptr && MaxStamina != nullptr && StatDisplay != nullptr)
+	if (StatMap.Contains(EStatEnum::SE_Stamina) && StatMap.Contains(EStatEnum::SE_MaxStamina) && StatDisplay != nullptr)
 	{
-		StatDisplay->DisplayStaminaPercentage(CurrStamina->GetData(), MaxStamina->GetData());
+		StatDisplay->DisplayStaminaPercentage(StatMap[EStatEnum::SE_Stamina]->GetData(), StatMap[EStatEnum::SE_MaxStamina]->GetData());
 	}	
 }
 
@@ -502,9 +516,9 @@ void ABaseCharacter::CleanupOnDeath()
 
 bool ABaseCharacter::CheckIfDead() const
 {
-	if (CurrHealth != nullptr)
+	if (StatMap.Contains(EStatEnum::SE_Health))
 	{
-		return CurrHealth->GetData() <= 0.0f;
+		return StatMap[EStatEnum::SE_Health]->GetData() <= 0.0f;
 	}
 
 	return false;

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "MotionWarpingComponent.h"
 #include "MyProject/Combat/Enums/Public/AttackLevelEnum.h"
+#include "MyProject/Stats/Enums/Public/StatEnum.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -112,7 +113,11 @@ class MYPROJECT_API ABaseCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	TMap<EStatEnum, UStat*> StatMap;
+
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* CurrHealth;
 
@@ -133,7 +138,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* MovementSpeed;
-
+	*/
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UEquippedWeapon* EquippedWeapon;
 	
@@ -335,7 +341,7 @@ public:
 
 	void AddMovementSpeedModifier(UStatModifier* StatModifier);
 	
-	UStat* GetMovementSpeed() const { return MovementSpeed; }
+	UStat* GetMovementSpeed();
 
 	TArray<FName> GetAttackBoneNames() const { return AttackBoneNames; }
 

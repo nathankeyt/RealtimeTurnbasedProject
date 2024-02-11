@@ -8,6 +8,35 @@
 #include "MyProject/Stats/StatModifiers/Public/StatModifier.h"
 #include "MyProject/Stats/StatModifiers/Public/StatModifierTuple.h"
 
+void UStatModifierApplicator::ApplyStatModifiers(TMap<EStatEnum, UStat*>& StatMap)
+{
+	for (const TPair<EStatEnum, UStatModifierTuple*>& Pair : StatModifierMap)
+	{
+		ApplyStatModifier(StatMap, Pair.Key, Pair.Value);
+	}
+}
+
+void UStatModifierApplicator::ApplyStatModifier(TMap<EStatEnum, UStat*>& StatMap, EStatEnum StatType, UStatModifierTuple* StatModifierTuple)
+{
+	if (StatModifierTuple != nullptr)
+	{
+		if (UStatModifier* StatModifier = NewObject<UStatModifier>(this, StatModifierTuple->GetStatModifierClass()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Stat %f"), StatModifierTuple->GetStatModifierValue()));
+			StatModifier->SetModifier(StatModifierTuple->GetStatModifierValue());
+			
+			if (StatMap.Contains(StatType))
+			{
+				StatModifier->SetParentStat(StatMap[StatType]);
+				StatMap[StatType] = StatModifier;
+			}
+		}
+	}
+}
+
+
+
+/*
 void UStatModifierApplicator::ApplyStatModifiersToCharacter(ABaseCharacter* Character)
 {
 	for (const TPair<EStatEnum, UStatModifierTuple*>& Pair : StatModifierMap)
@@ -64,3 +93,4 @@ void UStatModifierApplicator::ApplyStatModifierToStatApplicator(UStatModifierApp
 	}
 }
 
+*/
