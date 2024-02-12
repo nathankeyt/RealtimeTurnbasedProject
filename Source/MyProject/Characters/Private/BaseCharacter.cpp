@@ -435,10 +435,10 @@ void ABaseCharacter::HandleHit(const FVector& PreHitLocation, const FVector& Hit
 				AddCurrStamina(Weapon->GetStaminaDamage()->GetData());
 			}
 			
-			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetDamage() != nullptr)
+			if (AttackLevelI == EAttackLevelEnum::AE_LightAttack && Weapon->GetLightDamage() != nullptr)
 			{
 				PlayHitReactionMontage(PreHitLocation, Weapon->GetKnockBack());
-				AddCurrHealth(Weapon->GetDamage()->GetData());
+				AddCurrHealth(Weapon->GetLightDamage()->GetData());
 				
 			}
 			else if (AttackLevelI == EAttackLevelEnum::AE_HeavyAttack && Weapon->GetHeavyDamage() != nullptr)

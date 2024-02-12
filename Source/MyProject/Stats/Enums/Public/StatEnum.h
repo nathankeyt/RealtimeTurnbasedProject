@@ -18,5 +18,9 @@ enum class EStatEnum : uint8
 	SE_MaxMana		UMETA(DisplayName = "MaxMana"),
 	SE_Stamina			UMETA(DisplayName = "Stamina"),
 	SE_MaxStamina	UMETA(DisplayName = "MaxStamina"),
-	SE_MovementSpeed	UMETA(DisplayName = "MovementSpeed") 
+	SE_MovementSpeed	UMETA(DisplayName = "MovementSpeed"),
+	SE_Damage		UMETA(DisplayName = "Damage"),
+	SE_LightDamage		UMETA(DisplayName = "LightDamage"),
+	SE_HeavyDamage		UMETA(DisplayName = "HeavyDamage"),
+	SE_StaminaDamage		UMETA(DisplayName = "StaminaDamage"),
 };

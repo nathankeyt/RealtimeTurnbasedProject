@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MyProject/Combat/Enums/Public/KnockbackEnum.h"
 #include "Engine/DataAsset.h"
+#include "MyProject/Stats/Enums/Public/StatEnum.h"
 #include "Weapon.generated.h"
 
 class UNiagaraSystem;
@@ -19,6 +20,10 @@ class MYPROJECT_API UWeapon : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	TMap<EStatEnum, UStat*> StatMap;
+
+	/*
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
@@ -26,7 +31,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* StaminaDamage;
-
+*/
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EKnockBackEnum KnockBackEnum = EKnockBackEnum::KE_NoKnockBack;
 
@@ -37,27 +43,27 @@ public:
 	UNiagaraSystem* HitEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HitParticleSize;
+	float HitParticleSize = 1.0f;
 public:
 	
-	UStat* GetDamage() const { return Damage; }
+	UStat* GetLightDamage() { return StatMap.FindOrAdd(EStatEnum::SE_LightDamage); }
 
-	UStat* GetHeavyDamage() const { return HeavyDamage; }
+	UStat* GetHeavyDamage() { return StatMap.FindOrAdd(EStatEnum::SE_HeavyDamage); }
 
-	UStat* GetStaminaDamage() const { return StaminaDamage; }
+	UStat* GetStaminaDamage() { return StatMap.FindOrAdd(EStatEnum::SE_StaminaDamage); }
 
 	EKnockBackEnum GetKnockBack() const { return KnockBackEnum; }
 
 	EKnockBackEnum GetHeavyKnockBack() const { return HeavyKnockBackEnum; }
 
-	void SetDamage(UStat* Dmg) { Damage = Dmg; }
+	void SetLightDamage(UStat* Dmg) { StatMap.FindOrAdd(EStatEnum::SE_LightDamage) = Dmg; }
 
-	void SetHeavyDamage(UStat* HeavyDmg) { HeavyDamage = HeavyDmg; }
+	void SetHeavyDamage(UStat* HeavyDmg) { StatMap.FindOrAdd(EStatEnum::SE_HeavyDamage) = HeavyDmg; }
 
-	void SetStaminaDamage(UStat* StaminaDmg) { StaminaDamage = StaminaDmg; }
+	void SetStaminaDamage(UStat* StaminaDmg) { StatMap.FindOrAdd(EStatEnum::SE_StaminaDamage) = StaminaDmg; }
 
-	void SetKnockBack(EKnockBackEnum KnockBack) { KnockBackEnum = KnockBack; }
+	void SetKnockBack(const EKnockBackEnum KnockBack) { KnockBackEnum = KnockBack; }
 
-	void SetHeavyKnockBack(EKnockBackEnum KnockBack) { HeavyKnockBackEnum = KnockBack; }
+	void SetHeavyKnockBack(const EKnockBackEnum KnockBack) { HeavyKnockBackEnum = KnockBack; }
 	
 };

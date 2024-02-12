@@ -6,6 +6,11 @@
 #include "Engine/DataAsset.h"
 #include "Ability.generated.h"
 
+class UStat;
+enum class EStatEnum : uint8;
+class UAbilityModifierContainer;
+class UAbilityModifier;
+enum class EAbilityComponentType : uint8;
 enum class EAbilityActivationType : uint8;
 enum class EAbilityType : uint8;
 class ABaseCharacter;
@@ -20,29 +25,35 @@ class MYPROJECT_API UAbility : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* AbilityDisplayImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStatModifierApplicator* StatModifierApplicator;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int ManaCost;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int ActivationSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAbilityType AbilityType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAbilityActivationType AbilityActivationType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ABaseCharacter* ActiveCharacter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsActive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	TMap<EStatEnum, UStat*> StatMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<EAbilityComponentType, UAbilityModifierContainer*> AbilityModifierMap;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -58,6 +69,10 @@ public:
 	virtual void UseAltAction() {};
 
 	virtual void EndAltAction() {};
+
+	virtual void WhileActive() {};
+
+	virtual void OnHit() {};
 
 	UFUNCTION(BlueprintCallable)
 	EAbilityType GetAbilityType() const { return AbilityType; }
