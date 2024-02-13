@@ -14,7 +14,11 @@ class MYPROJECT_API  UAbilityModifier : public UDataAsset
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStatModifierApplicator* StatModifierApplicator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText DisplayText;
 public:
 	virtual void ApplyModifier(UAbility* Ability) {};
 };

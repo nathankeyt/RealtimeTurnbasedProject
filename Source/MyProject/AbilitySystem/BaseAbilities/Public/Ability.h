@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<EAbilityComponentType, UAbilityModifierContainer*> AbilityModifierMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText DisplayText;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool Activate(ABaseCharacter* Character) { return false; };
