@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AbilitySystemComponent.generated.h"
 
+class UAbilityMenuWidget;
 class UAbility;
 class UEquipAbilityBase;
 class ABaseCharacter;
@@ -19,7 +20,7 @@ public:
 	// Sets default values for this component's properties
 	UAbilitySystemComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<UAbility*> Abilities;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -27,6 +28,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UAbility* MainEquippedAbility;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Instanced, meta = (AllowPrivateAccess = "true"))
+	UAbilityMenuWidget* AbilityMenuWidget;
 
 protected:
 	// Called when the game starts
@@ -51,4 +55,13 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UAbility* GetMainEquippedAbility();
+
+	UFUNCTION(BlueprintCallable)
+	void AddAbility(UAbility* Ability);
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayAbilityMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void HideAbilityMenu();
 };

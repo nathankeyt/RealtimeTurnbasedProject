@@ -6,6 +6,7 @@
 #include "MyProject/AbilitySystem/BaseAbilities/Public/Ability.h"
 #include "MyProject/AbilitySystem/Enums/Public/AbilityActivationType.h"
 #include "MyProject/AbilitySystem/Enums/Public/AbilityType.h"
+#include "MyProject/AbilitySystem/UI/Public/AbilityMenuWidget.h"
 // Sets default values for this component's properties
 UAbilitySystemComponent::UAbilitySystemComponent()
 {
@@ -25,6 +26,11 @@ UAbilitySystemComponent::UAbilitySystemComponent()
 void UAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	for (UAbility* Ability : Abilities)
+	{
+		AbilityMenuWidget->AddAbilityToList(Ability);
+	}
 
 	// ...
 	
@@ -111,6 +117,35 @@ void UAbilitySystemComponent::EndAbilityActivationByType(UAbility* Ability)
 UAbility* UAbilitySystemComponent::GetMainEquippedAbility()
 {
 	return MainEquippedAbility;
+}
+
+void UAbilitySystemComponent::AddAbility(UAbility* Ability)
+{
+	if (Ability != nullptr)
+	{
+		Abilities.Add(Ability);
+
+		if (AbilityMenuWidget != nullptr)
+		{
+			AbilityMenuWidget->AddAbilityToList(Ability);
+		}
+	}
+}
+
+void UAbilitySystemComponent::DisplayAbilityMenu()
+{
+	if (AbilityMenuWidget != nullptr)
+	{
+		AbilityMenuWidget->AddToViewport();
+	}
+}
+
+void UAbilitySystemComponent::HideAbilityMenu()
+{
+	if (AbilityMenuWidget != nullptr)
+	{
+		AbilityMenuWidget->RemoveFromParent();
+	}
 }
 
 

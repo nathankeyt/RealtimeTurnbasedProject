@@ -21,7 +21,7 @@ public:
 	TArray<UImage*> AbilityDisplays;
 
 	UFUNCTION(BlueprintCallable)
-	TArray<UImage*> GetAbilityDisplays() const {return AbilityDisplays; }
+	TArray<UImage*> GetAbilityDisplays() const { return AbilityDisplays; }
 
 	UFUNCTION(BlueprintCallable)
 	void SetAbilityDisplay(UAbilitySystemComponent* AbilitySystem);

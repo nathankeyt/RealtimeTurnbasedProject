@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "Ability.generated.h"
 
+class UAbilityMenuWidget;
+class UAbilityEntryWidget;
 class UStat;
 enum class EStatEnum : uint8;
 class UAbilityModifierContainer;
@@ -56,6 +58,12 @@ public:
 	TMap<EAbilityComponentType, UAbilityModifierContainer*> AbilityModifierMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAbilityEntryWidget* AbilityEntryWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText AbilityName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText DisplayText;
 
 public:
@@ -88,4 +96,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UTexture2D* GetAbilityDisplayImage() const { return AbilityDisplayImage; }
+
+	UFUNCTION(BlueprintCallable)
+	UAbilityEntryWidget* GetAbilityEntryWidget() const { return AbilityEntryWidget; }
 };
