@@ -16,9 +16,9 @@ UAbilitySystemComponent::UAbilitySystemComponent()
 	
 	SetIsReplicatedByDefault(true);
 
-	Abilities.Init(nullptr, 10);
+	//Abilities.Init(nullptr, 10);
 
-	ActiveAbilities.Init(false, 10);
+	//ActiveAbilities.Init(false, 10);
 }
 
 
@@ -27,10 +27,16 @@ void UAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (UAbility* Ability : Abilities)
+	if (AbilityMenuWidget != nullptr)
 	{
-		AbilityMenuWidget->AddAbilityToList(Ability);
+		for (UAbility* Ability : Abilities)
+		{
+			ActiveAbilities.Add(false);
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Adding Ability to Menu")));
+			AbilityMenuWidget->AddAbilityToList(Ability);
+		}
 	}
+	
 
 	// ...
 	
@@ -124,6 +130,7 @@ void UAbilitySystemComponent::AddAbility(UAbility* Ability)
 	if (Ability != nullptr)
 	{
 		Abilities.Add(Ability);
+		ActiveAbilities.Add(false);
 
 		if (AbilityMenuWidget != nullptr)
 		{
@@ -134,8 +141,10 @@ void UAbilitySystemComponent::AddAbility(UAbility* Ability)
 
 void UAbilitySystemComponent::DisplayAbilityMenu()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("in displaying ability menu func")));
 	if (AbilityMenuWidget != nullptr)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("displaying ability menu")));
 		AbilityMenuWidget->AddToViewport();
 	}
 }

@@ -14,6 +14,7 @@
 #include "EnhancedInputComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MyProject/AbilitySystem/Public/AbilitySystemComponent.h"
 #include "MyProject/AbilitySystem/UI/Public/AbilityDisplayWidget.h"
 #include "MyProject/Characters/NPCs/Public/NPCCharacter.h"
 #include "MyProject/Stats/UI/Public/StatWidget.h"
@@ -191,6 +192,7 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
 
 void APlayerCharacter::AltAttackInputHandler(const FInputActionValue& Value)
 {
+    AbilitySystem->DisplayAbilityMenu();
     // SetActorRotation(FollowCamera->GetComponentRotation());
     
     Attack(true);
@@ -290,6 +292,7 @@ void APlayerCharacter::EndUseAbility1(const FInputActionValue& Value)
 
 void APlayerCharacter::UseAbility2(const FInputActionValue& Value)
 {
+    
     ActivateAbility(1);
 }
 

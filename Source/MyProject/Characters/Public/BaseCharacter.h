@@ -239,7 +239,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CombatMontages )
 	FDodgeMontageStruct DodgeMontages;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UAbilitySystemComponent* AbilitySystem;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -356,6 +356,9 @@ public:
 	void SetLastFistCollision(FVector Location) { LastFistCollisionLocation = Location; }
 
 	void SetFistCollisionTraceRadius(float TraceRadius) { FistCollisionTraceRadius = TraceRadius; }
+
+	UFUNCTION(BlueprintCallable)
+	UAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystem; }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

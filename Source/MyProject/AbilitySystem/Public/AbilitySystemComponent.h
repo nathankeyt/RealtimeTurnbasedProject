@@ -29,7 +29,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UAbility* MainEquippedAbility;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Instanced, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, meta = (AllowPrivateAccess = "true"))
 	UAbilityMenuWidget* AbilityMenuWidget;
 
 protected:
