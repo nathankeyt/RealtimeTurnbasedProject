@@ -7,10 +7,17 @@
 
 void UStatWidget::DisplayHealthPercentage(const float CurrHealth, const float MaxHealth) const
 {
-	HealthBar->SetPercent(CurrHealth / MaxHealth);
+	if (HealthBar != nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("setting health")));
+		HealthBar->SetPercent(CurrHealth / MaxHealth);
+	}
 }
 
 void UStatWidget::DisplayStaminaPercentage(const float CurrStamina, const float MaxStamina) const
 {
-	StaminaBar->SetPercent(CurrStamina / MaxStamina);
+	if (StaminaBar != nullptr)
+	{
+		StaminaBar->SetPercent(CurrStamina / MaxStamina);
+	}
 }

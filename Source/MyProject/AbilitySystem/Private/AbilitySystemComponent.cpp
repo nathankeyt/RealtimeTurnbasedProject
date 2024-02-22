@@ -24,21 +24,24 @@ UAbilitySystemComponent::UAbilitySystemComponent()
 
 // Called when the game starts
 void UAbilitySystemComponent::BeginPlay()
-{
+{ 
 	Super::BeginPlay();
 
+	GetWorld()->OnWorldBeginPlay.AddUObject(this, &ThisClass::InitializeUI);
+}
+
+void UAbilitySystemComponent::InitializeUI()
+{
 	if (AbilityMenuWidget != nullptr)
 	{
 		for (UAbility* Ability : Abilities)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("adding ability to list")));
 			AbilityMenuWidget->AddAbilityToList(Ability);
 		}
 	}
-	
-
-	// ...
-	
 }
+
 
 
 // Called every frame

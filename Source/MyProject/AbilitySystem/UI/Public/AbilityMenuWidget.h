@@ -23,10 +23,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	UListView* AbilityListView;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UAbilityEntryWidget> AbilityEntryClass;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//TSubclassOf<UAbilityEntryWidget> AbilityEntryClass;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void AddAbilityToList(UAbility* Ability);
+	void AddAbilityToList(UAbility* Ability) const;
 };
