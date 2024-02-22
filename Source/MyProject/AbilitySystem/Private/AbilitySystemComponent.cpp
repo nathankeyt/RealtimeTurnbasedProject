@@ -16,9 +16,9 @@ UAbilitySystemComponent::UAbilitySystemComponent()
 	
 	SetIsReplicatedByDefault(true);
 
-	Abilities.Init(nullptr, 10);
+	// Abilities.Init(nullptr, 10);
 
-	ActiveAbilities.Init(false, 10);
+	// ActiveAbilities.Init(false, 10);
 }
 
 
@@ -27,10 +27,14 @@ void UAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (UAbility* Ability : Abilities)
+	if (AbilityMenuWidget != nullptr)
 	{
-		AbilityMenuWidget->AddAbilityToList(Ability);
+		for (UAbility* Ability : Abilities)
+		{
+			AbilityMenuWidget->AddAbilityToList(Ability);
+		}
 	}
+	
 
 	// ...
 	
