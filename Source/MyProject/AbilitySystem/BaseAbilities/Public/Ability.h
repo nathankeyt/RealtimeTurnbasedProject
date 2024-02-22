@@ -57,7 +57,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<EAbilityComponentType, UAbilityModifierContainer*> AbilityModifierMap;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UAbilityEntryWidget* AbilityEntryWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
