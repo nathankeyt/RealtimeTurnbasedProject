@@ -27,13 +27,16 @@ void UAbilitySystemComponent::BeginPlay()
 { 
 	Super::BeginPlay();
 
-	GetWorld()->OnWorldBeginPlay.AddUObject(this, &ThisClass::InitializeUI);
+	InitializeUI();
+
+	// GetWorld()->OnWorldBeginPlay.AddUObject(this, &ThisClass::InitializeUI);
 }
 
 void UAbilitySystemComponent::InitializeUI()
 {
 	if (AbilityMenuWidget != nullptr)
 	{
+		AbilityMenuWidget->Initialize();
 		for (UAbility* Ability : Abilities)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("adding ability to list")));

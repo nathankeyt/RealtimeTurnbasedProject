@@ -65,5 +65,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideAbilityMenu();
 	
+	UFUNCTION(BlueprintCallable)
 	void InitializeUI();
 };
