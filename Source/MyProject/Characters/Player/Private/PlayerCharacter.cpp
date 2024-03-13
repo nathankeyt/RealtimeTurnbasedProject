@@ -192,7 +192,6 @@ void APlayerCharacter::MainAttackInputHandler(const FInputActionValue& Value)
 
 void APlayerCharacter::AltAttackInputHandler(const FInputActionValue& Value)
 {
-    AbilitySystem->DisplayAbilityMenu();
     // SetActorRotation(FollowCamera->GetComponentRotation());
     
     Attack(true);

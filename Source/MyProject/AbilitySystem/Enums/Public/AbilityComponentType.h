@@ -6,8 +6,8 @@
 UENUM(BlueprintType)
 enum class EAbilityComponentType : uint8
 {
-	AC_OnActivate	UMETA(DisplayName = "BasicAbility"),
-	AC_OnRelease	UMETA(DisplayName = "BasicAbility"),
-	AC_WhileActive UMETA(DisplayName = "MainEquippedAbility"),
-	AC_OnHit UMETA(DisplayName = "MainEquippedAbility"),
+	AC_OnActivate	UMETA(DisplayName = "OnActivate"),
+	AC_OnRelease	UMETA(DisplayName = "OnRelease"),
+	AC_WhileActive UMETA(DisplayName = "WhileActive"),
+	AC_OnHit UMETA(DisplayName = "OnHit"),
 };
