@@ -52,7 +52,19 @@ void UAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	/*
+	for (UAbility* Ability : Abilities)
+	{
+		if (Ability->GetIsActive())
+		{
+			Ability->WhileActive();
+		}
+
+		if (Ability->GetIsMainActive())
+		{
+			Ability->WhileMainActive();
+		}
+	}*/
 }
 
 void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, ABaseCharacter* Character)

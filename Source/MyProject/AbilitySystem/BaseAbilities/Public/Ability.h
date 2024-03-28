@@ -51,6 +51,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool IsActive;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsMainActive;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	TMap<EStatEnum, UStat*> StatMap;
 
@@ -83,6 +86,8 @@ public:
 
 	virtual void WhileActive() {};
 
+	virtual void WhileMainActive() {};
+
 	virtual void OnHit() {};
 
 	UFUNCTION(BlueprintCallable)
@@ -93,6 +98,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsActive() const { return IsActive; }
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsMainActive() const { return IsMainActive; }
 	
 	UFUNCTION(BlueprintCallable)
 	UTexture2D* GetAbilityDisplayImage() const { return AbilityDisplayImage; }
