@@ -12,6 +12,10 @@ bool UDragonsBreath::Activate(ABaseCharacter* Character)
 	if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Character))
 	{
 		PlayerCharacter->SetAimOffset(true);
+
+		if (PlayerCharacter->AnimationLayeringMap.Contains(EAnimationLayeringEnum::AL_PalmShoot)) {
+			PlayerCharacter->AnimationLayeringMap[EAnimationLayeringEnum::AL_PalmShoot] = true;
+		}	
 	}
 
 	ActiveCharacter = Character;
@@ -23,12 +27,16 @@ bool UDragonsBreath::Activate(ABaseCharacter* Character)
 bool UDragonsBreath::EndActivation()
 {
 	if (ActiveCharacter != nullptr)
-	{ 
+	{
+		EndMainAction();
+		
 		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(ActiveCharacter))
 		{
 			PlayerCharacter->SetAimOffset(false);
 
-			return true;
+			if (PlayerCharacter->AnimationLayeringMap.Contains(EAnimationLayeringEnum::AL_PalmShoot)) {
+				PlayerCharacter->AnimationLayeringMap[EAnimationLayeringEnum::AL_PalmShoot] = false;
+			}	
 		}
 
 		ActiveCharacter = nullptr;
@@ -46,7 +54,7 @@ void UDragonsBreath::UseMainAction()
 	{
 		IsMainActive = true;
 
-		ActiveCharacter->GetWorldTimerManager().SetTimer(BreathHandle, this, &UDragonsBreath::WhileMainActive, 0.5f, true, 0.0f);
+		ActiveCharacter->GetWorldTimerManager().SetTimer(BreathHandle, this, &UDragonsBreath::WhileMainActive, 0.1f, true, 0.0f);
 	}
 }
 

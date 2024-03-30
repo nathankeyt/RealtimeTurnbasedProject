@@ -107,9 +107,18 @@ void AProjectile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-void AProjectile::SetupSpawn(UWeapon* NewWeapon, UStaticMesh* Mesh, UMaterial* Material, UNiagaraSystem* NiagaraSystem, UParticleSystem* ParticleSystem)
+
+void AProjectile::SetupSpawn(APawn* InstigatingPawn, UWeapon* NewWeapon, UStaticMesh* Mesh, UMaterial* Material,
+	UNiagaraSystem* NiagaraSystem, UParticleSystem* ParticleSystem, float Gravity, float HitParticleLifeSpan)
 {
+	SetInstigator(InstigatingPawn);
+	
 	AttachToActor(GetInstigator(), FAttachmentTransformRules::KeepWorldTransform);
+
+	if (ProjectileMovementComponent != nullptr)
+	{
+		ProjectileMovementComponent->ProjectileGravityScale = Gravity;
+	}
 	
 	if (NewWeapon != nullptr)
 	{
@@ -155,7 +164,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 		// OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
 	} */
 
-	if (OtherActor != nullptr && OtherActor != this) {
+	if (OtherActor != nullptr && OtherActor != this && OtherActor != GetInstigator()) {
 		if (OtherComponent->IsSimulatingPhysics())
 		{
 			OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);

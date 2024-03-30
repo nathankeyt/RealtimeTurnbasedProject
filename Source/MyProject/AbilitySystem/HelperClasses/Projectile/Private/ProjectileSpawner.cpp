@@ -24,7 +24,7 @@ void UProjectileSpawner::SpawnProjectile(ABaseCharacter* Character)
         FVector CharacterLocation = Character->GetMesh()->GetBoneLocation("index_03_l");
 
         FVector MuzzleOffset;
-        MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
+        MuzzleOffset.Set(0.0f, 0.0f, 0.0f);
 
         UCameraComponent* FollowCamera = PlayerCharacter->GetFollowCamera();
 
@@ -36,7 +36,7 @@ void UProjectileSpawner::SpawnProjectile(ABaseCharacter* Character)
             const FTransform SpawnTransform(FollowCamera->GetComponentRotation(), MuzzleLocation);
             
             if (AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, SpawnTransform, PlayerCharacter, PlayerCharacter->GetInstigator())) {
-                Projectile->SetupSpawn(Weapon, Mesh, Material, NiagaraSystem, ParticleSystem);
+                Projectile->SetupSpawn(Character, Weapon, Mesh, Material, NiagaraSystem, ParticleSystem, Gravity, HitParticleSystemLifeSpan);
 
                 Projectile->FinishSpawning(SpawnTransform);
                 

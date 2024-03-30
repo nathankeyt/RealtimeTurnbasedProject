@@ -29,6 +29,11 @@ void UAbilitySystemComponent::BeginPlay()
 
 	InitializeUI();
 
+	for (int i = 0; i < Abilities.Num(); i++)
+	{
+		Abilities[i] = DuplicateObject(Abilities[i], nullptr);
+	}
+
 	// GetWorld()->OnWorldBeginPlay.AddUObject(this, &ThisClass::InitializeUI);
 }
 
@@ -71,10 +76,12 @@ void UAbilitySystemComponent::ActivateAbility_Implementation(int AbilityIndex, A
 {
 	if (AbilityIndex >= 0 && AbilityIndex < Abilities.Num() && Abilities[AbilityIndex] != nullptr)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability activation or deactivation moving forward")));
 		const EAbilityActivationType AbilityActivationType = Abilities[AbilityIndex]->GetAbilityActivationType();
  
 		if (AbilityActivationType == EAbilityActivationType::AA_Toggleable && Abilities[AbilityIndex]->GetIsActive())
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability end activation attempt")));
 			EndAbilityActivationByType(Abilities[AbilityIndex]);
 		}
 		else
@@ -91,11 +98,14 @@ void UAbilitySystemComponent::ActivateAbilityByType(UAbility* Ability, ABaseChar
 	if (AbilityType == EAbilityType::AT_MainEquippedAbility)
 	{
 		if (MainEquippedAbility != nullptr) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("main equipped ability not null")));
 			if (MainEquippedAbility->EndActivation())
 			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("main equipped ability deactivated")));
 				MainEquippedAbility = nullptr;
 				if (Ability->Activate(Character))
 				{
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability activated")));
 					MainEquippedAbility = Ability;
 				}
 			}
@@ -104,12 +114,14 @@ void UAbilitySystemComponent::ActivateAbilityByType(UAbility* Ability, ABaseChar
 		{
 			if (Ability->Activate(Character))
 			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability activated")));
 				MainEquippedAbility = Ability;
 			}
 		}
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability activated")));
 		Ability->Activate(Character);
 	}
 }
@@ -127,9 +139,11 @@ void UAbilitySystemComponent::EndAbilityActivationByType(UAbility* Ability)
 {
 	if (Ability->EndActivation())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability end activation forward")));
 		const EAbilityType AbilityType = Ability->GetAbilityType();
 		
 		if (AbilityType == EAbilityType::AT_MainEquippedAbility) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability end activation")));
 			MainEquippedAbility = nullptr;
 		}
 	}

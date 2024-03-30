@@ -48,11 +48,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ABaseCharacter* ActiveCharacter;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool IsActive;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsActive = false;;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool IsMainActive;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsMainActive = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	TMap<EStatEnum, UStat*> StatMap;

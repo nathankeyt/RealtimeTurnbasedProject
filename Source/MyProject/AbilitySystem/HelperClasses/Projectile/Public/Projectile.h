@@ -53,11 +53,13 @@ public:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
-	void SetupSpawn(UWeapon* NewWeapon = nullptr,
+	void SetupSpawn(APawn* InstigatingPawn, UWeapon* NewWeapon = nullptr,
 		UStaticMesh* Mesh = nullptr,
 		UMaterial* Material = nullptr,
 		UNiagaraSystem* NiagaraSystem  = nullptr,
-		UParticleSystem* ParticleSystem  = nullptr);
+		UParticleSystem* ParticleSystem  = nullptr,
+		float Gravity = 0.0f,
+		float HitParticleLifeSpan = 0.0f);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

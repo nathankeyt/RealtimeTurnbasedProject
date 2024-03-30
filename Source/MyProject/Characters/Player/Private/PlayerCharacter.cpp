@@ -91,6 +91,17 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    if ((AnimationLayeringMap.Contains(EAnimationLayeringEnum::AL_PalmShoot) && AnimationLayeringMap[EAnimationLayeringEnum::AL_PalmShoot])) // || GetVelocity().Length() != 0.0f)
+    {
+        if (!bUseControllerRotationYaw)
+        {
+            bUseControllerRotationYaw = true;
+        }
+    }
+    else if (bUseControllerRotationYaw) {
+        bUseControllerRotationYaw = false;
+    }
+
     if (TargetAimOffset != CameraBoom->SocketOffset)
     {
         if (AimOffsetAlpha >= 0.95)
@@ -280,6 +291,7 @@ void APlayerCharacter::EndUseAbility(const FInputActionValue& Value) {
 
 void APlayerCharacter::UseAbility1(const FInputActionValue& Value)
 {
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability 1 started")));
     ActivateAbility(0);
 }
 
@@ -310,7 +322,7 @@ void APlayerCharacter::EndUseAbility3(const FInputActionValue& Value)
     EndAbilityActivation(2);
 }
 
-void APlayerCharacter::SetAimOffset(bool ShouldAimOffset)
+void APlayerCharacter:: SetAimOffset(bool ShouldAimOffset)
 {
     AimOffsetAlpha = 0.0f;
     if (ShouldAimOffset)

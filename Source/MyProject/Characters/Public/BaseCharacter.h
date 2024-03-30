@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MotionWarpingComponent.h"
+#include "..\Enums\Public\AnimationLayeringEnum.h"
 #include "MyProject/Combat/Enums/Public/AttackLevelEnum.h"
 #include "MyProject/Stats/Enums/Public/StatEnum.h"
 #include "BaseCharacter.generated.h"
@@ -117,6 +118,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	TMap<EStatEnum, UStat*> StatMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<EAnimationLayeringEnum, bool> AnimationLayeringMap;
+
 	/*
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* CurrHealth;
@@ -139,6 +143,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UStat* MovementSpeed;
 	*/
+
+	FTimerHandle TurnHandle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float ShouldTurn;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FRotator TargetTurnRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FRotator StartTurnRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float TurnAlpha = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float TurnRate = 0.025f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRotator AimRotator;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UEquippedWeapon* EquippedWeapon;
@@ -265,6 +289,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	void Turn();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Attack(bool IsAltAttack = false);

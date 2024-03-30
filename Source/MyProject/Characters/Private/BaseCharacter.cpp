@@ -50,25 +50,15 @@ void ABaseCharacter::Tick(float DeltaTime)
 	UKismetSystemLibrary::FlushPersistentDebugLines(GetWorld());
 
 	IncrementParryCounter(MaxParryCounter);
+	
+	AimRotator = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation());
 
-	/*
-	if (IsRecovering)
+	if (!GetWorldTimerManager().IsTimerActive(TurnHandle) && (AimRotator.Yaw > 90.0 || AimRotator.Yaw < -90.0 || AimRotator.Pitch > 90.0 || AimRotator.Pitch < -90.0))
 	{
-		if (RecoveringCounter < 100)
-		{
-			RecoveringCounter++;
-		}
-		else
-		{
-			RecoveringCounter = 0;
-			IsRecovering = false;
-		} 
-	} */
-
-	if (IsDodging && GetMesh()->GetAnimInstance()->Montage_IsActive(nullptr) && DodgeTaper > 0.0f)
-	{
-		AddMovementInput(DodgeDir, DodgeTaper);
-		DodgeTaper -= 0.005f;
+		TargetTurnRotation = GetControlRotation();
+		StartTurnRotation = GetActorRotation();
+		
+		//GetWorldTimerManager().SetTimer(TurnHandle, this, &ABaseCharacter::Turn, 0.05f, true, 0.0f);
 	}
 
 	if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(nullptr))
@@ -88,6 +78,18 @@ void ABaseCharacter::Tick(float DeltaTime)
 	
 	if (!CanPunch && !AttackBoneNames.IsEmpty()) {
 		CheckFistCollision(AttackBoneNames[0]);
+	}
+}
+
+void ABaseCharacter::Turn()
+{
+	TurnAlpha += 0.05;
+	SetActorRotation(UKismetMathLibrary::RLerp(StartTurnRotation, FRotator(StartTurnRotation.Roll, TargetTurnRotation.Yaw, StartTurnRotation.Pitch), TurnAlpha, true));
+		
+	if (TurnAlpha >= 1.0f)
+	{
+		TurnAlpha = 0.0f;
+		GetWorldTimerManager().ClearTimer(TurnHandle);
 	}
 }
 
@@ -310,6 +312,7 @@ void ABaseCharacter::ActivateAbility(const int AbilityIndex)
 {
 	if (AbilitySystem != nullptr)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("ability activate attempt")));
 		AbilitySystem->ActivateAbility(AbilityIndex, this);
 	}
 }

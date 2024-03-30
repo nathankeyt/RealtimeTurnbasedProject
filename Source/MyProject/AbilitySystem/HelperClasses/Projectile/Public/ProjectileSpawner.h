@@ -31,6 +31,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	float ProjectileLifeSpan = 3.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float HitParticleSystemLifeSpan = 3.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float Gravity = 0.0f;
+
 	UPROPERTY(EditAnywhere)
 	UStaticMesh* Mesh;
 
