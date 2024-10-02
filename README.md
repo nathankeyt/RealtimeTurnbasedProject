@@ -11,3 +11,5 @@ A project consisting a many Unreal Engine experiments.
 - Charged low and high attacks combat system + block, parry, and dodge system
 
 - Proximity dialogue detection
+
+- (In progress) Dyanmic ability system using decorator design pattern for attribute and modifier stacking
