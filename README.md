@@ -8,8 +8,6 @@ A project consisting a many Unreal Engine experiments.
 
 - Directional hit response animation system
 
-- Proximity dialogue detection
-
 - Charged low and high attacks combat system + block, parry, and dodge system
 
-- 
+- Proximity dialogue detection
