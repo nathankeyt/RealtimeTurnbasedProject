@@ -12,4 +12,4 @@ A project consisting a many Unreal Engine experiments.
 
 - Proximity dialogue detection
 
-- (In progress) Dyanmic ability system using decorator design pattern for attribute and modifier stacking
+- (In progress) Dynamic ability system using decorator design pattern for attribute and modifier stacking
