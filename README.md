@@ -1,6 +1,6 @@
-# Unreal Engine 5 Prototype Project
+# Unreal Engine 5 Prototype Collection
  
-A project consisting of multiple Unreal Engine 5 prototype systems.
+A collection of Unreal Engine 5 prototypes.
 
 ## Included Prototypes (Primarily written in C++ and exposed to Blueprints for easier customization)
 
