@@ -4,7 +4,7 @@ A collection of Unreal Engine 5 prototypes.
 
 ## Included Prototypes (Primarily written in C++ and exposed to Blueprints for easier customization)
 
-- Animation Blueprint-exposed inverse kinematics procedural animation system for N legged creatures
+- Blueprint-exposed inverse kinematics procedural animation system for N legged creatures
 
 - Directional hit response animation system
 
